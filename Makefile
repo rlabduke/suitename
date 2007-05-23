@@ -1,19 +1,22 @@
 # suitename
 
 ifeq ($(MAKECMDGOALS),debug)
-CFLAGS = -g
+	CFLAGS = -g -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc
 else
-CFLAGS =
+	CFLAGS = -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc
 endif
 
-LIBS = -lm 
+LIBS = -lm -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc
 
 # ---------------------------------------------------------------------
-
-OBJS = suitename.o suitenscrt.o suiteninit.o suiteninpt.o suitenout.o suitenutil.o
+PROG_FLGS   =  
+OBJS = suitename.o suitenscrt.o suiteninit.o suiteninpt.o \
+       suitenout.o suitenutil.o
 
 # ---------------------------------------------------------------------
-HEADERS = suitename.h suitenscrt.h suitenutil.h suiteninit.h suiteninpt.h suitenout.h
+HEADERS = suitename.h suitenscrt.h suitenutil.h suiteninit.h suiteninpt.h \
+          suitenout.h
+
 suitename: $(OBJS)
 	cc -o suitename $(CFLAGS) $(OBJS) $(LIBS)
 
