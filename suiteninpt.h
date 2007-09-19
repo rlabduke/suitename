@@ -26,6 +26,7 @@ int   movenewtooldresidue(void);
 void  printresidue(char*);
 int   clearnewresidue(void);
 int   loadnewresidue(void);
+int   interpretdanglerecord(void);   /*070525*/
 int   interpretresiduerecord(void);
 int   interpretsuiterecord(void);   /*070211*/
 int   Getoneinputline(void);

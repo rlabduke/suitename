@@ -18,27 +18,35 @@ void writesuite(int ibin,int jclst,char* sour, float distance, float suiteness,c
    char clststr[4]={'\0','\0','\0','\0'};
    static char lappedstr[256]={'\0'};
    char reason[16]; /*used in report: reason for triage*/
+   char stray[16]; /*used in report: stray wannabe*/
+   char  sourpuss[1]; /*070524*/
+   char* sourptr; /*070524*/
    
+   sourpuss[0] = '\0'; /*070524*/
 
    if(Lkinemageout)
    {/*kinemage showing clusters*/
 
-     sprintf(temps,"{%s %s %s :D==%5.3f:S==%5.3f: %s} %s%s 180.0, %7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f, 180.0",
+     if(Lsourout) {sourptr = sour;} /*070524*/
+     else         {sourptr = sourpuss;}
+     sprintf(temps,"{%s %s %s:D==%5.3f:S==%5.3f: %s} %s%s ,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f",
      bin[ibin].binname,
      bin[ibin].clst[jclst].clustername,
-     sour,
+     sourptr,
      distance,
      suiteness,
      suiteptr->ptID,
      ptmaster,
      ptcolor,
+     suiteptr->chim,
      suiteptr->deltam,
      suiteptr->epsilon,
      suiteptr->zeta,
      suiteptr->alpha,
      suiteptr->beta,
      suiteptr->gamma,
-     suiteptr->delta);
+     suiteptr->delta,
+     suiteptr->chi   );
 
      if(ibin > 12 || ibin < 0)
      {
@@ -94,18 +102,23 @@ void writesuite(int ibin,int jclst,char* sour, float distance, float suiteness,c
    {
       /*report on all entries, even if suite is incomplete*/
       reason[0] = '\0'; /*default to none*/
-      if(Ltriage==5){sprintf(reason," epsilon");} /*070521*/
-      else if(Ltriage==4){sprintf(reason," delta");} /*070521*/
-      else if(Ltriage==3){sprintf(reason," gamma");} /*070521*/
-      else if(Ltriage==2){sprintf(reason," beta");} /*070521*/
-      else if(Ltriage==1){sprintf(reason," alpha");} /*070521*/
-      else if(Ltriage==6){sprintf(reason," zeta");} /*070521*/
-      fprintf(fpout,"%s %s %s %5.3f%s\n",
+      stray[0] = '\0'; /*default to none*/
+      if(Ltriage==EPSILONM)   {sprintf(reason," epsilon-1");} /*070628*/
+      else if(Ltriage==DELTAM){sprintf(reason," delta-1");} /*070628*/
+      else if(Ltriage==DELTA) {sprintf(reason," delta");} /*070628*/
+      else if(Ltriage==GAMMA) {sprintf(reason," gamma");} /*070521*/
+      else if(Ltriage==BETA)  {sprintf(reason," beta");} /*070521*/
+      else if(Ltriage==ALPHA) {sprintf(reason," alpha");} /*070521*/
+      else if(Ltriage==ZETAM) {sprintf(reason," zeta-1");} /*070628*/
+      else if(Lcomment){sprintf(reason,"%s",commentstr);} /*070628*/
+      if(Liswannabe){sprintf(stray," wannabe");} /*070525*/
+      fprintf(fpout,"%s %s %s %5.3f%s%s\n",
          suiteptr->ptID,
          bin[ibin].binname,
          bin[ibin].clst[jclst].clustername,
          suiteness,
-         reason
+         reason,
+         stray   /*070628*/
          );
 
       reportcountall++; /*everything that suitename brought in */
@@ -448,12 +461,16 @@ void kinemageheader(char* textstr)
    fprintf(fpout,"@text\n %s\n %s\n",version,textstr);
    fprintf(fpout,"@kinemage 1\n");
    fprintf(fpout,"@onewidth\n");
-   fprintf(fpout,"@dimension {chi-1} {delta-1} {epsilon-1} {zeta-1} {alpha} {beta} {gamma} {delta} {chi}\n");
+   if(Letatheta) /*070524*/
+      {fprintf(fpout,"@dimension {theta} {delta-1} {epsilon-1} {zeta-1} {alpha} {beta} {gamma} {delta} {eta}\n");}
+   else
+      {fprintf(fpout,"@dimension {chi-1} {delta-1} {epsilon-1} {zeta-1} {alpha} {beta} {gamma} {delta} {chi}\n");}
    fprintf(fpout,"@dimminmax 0.000 360.000 0.000 360.000 0.000 360.000 0.000 360.000 0.000 360.000 0.000 360.000 0.000 360.000 0.000 360.000 0.000 360.000\n");
 
-   if     (Ltriage==5) {fprintf(fpout,"@pointmaster 'E' {epsilon bad}\n");}
-   else if(Ltriage==4) {fprintf(fpout,"@pointmaster 'D' {delta bad}\n");}
-   else if(Ltriage>0)
+   if(LTepsilon) {fprintf(fpout,"@pointmaster 'E' {epsilon bad}\n");}
+   else if(LTdelta || LTdeltam) 
+                         {fprintf(fpout,"@pointmaster 'D' {delta bad}\n");}
+   else if(LTzeta || LTalpha || LTbeta || LTgamma)
                  {fprintf(fpout,"@pointmaster 'T' {various bad}\n");}
    if(Loutlier)  {fprintf(fpout,"@pointmaster 'O' {outliers}\n");}
    if(Lwannabeout)  {fprintf(fpout,"@master {wannabees}\n");}
@@ -547,6 +564,8 @@ void usageout(void) /* -h  -help */
   fprintf(stderr,
       "{ptID} [chi] deltam epsilon zeta alpha beta gamma delta [chi] \n");
   fprintf(stderr," Note that all other kinemage lines must be stripped off.\n");
+  fprintf(stderr,"-thetaeta  kinemage labels theta,eta instead of chi-1,chi\n");
+  fprintf(stderr,"Note dangle trick to make theta,...,eta suites directly\n");
   fprintf(stderr,"\n");
   fprintf(stderr,"flag: -report [ -chart ]\n");
   fprintf(stderr," suites in order of input, suiteness summary at end\n");  
@@ -568,8 +587,9 @@ void usageout(void) /* -h  -help */
   fprintf(stderr,"\n");
   /*fprintf(stderr,"flag: -satellite\n"); DO NOT ADVERTISE THIS OPTION*/
   /*fprintf(stderr,"  use special general case satellite widths\n");*/
-  fprintf(stderr,"flag: -wannabe\n");
-  fprintf(stderr,"  also assigns to designated wannabe clusters\n");
+  fprintf(stderr," assigns to designated wannabe clusters, default: wannabe\n");
+  /*fprintf(stderr,"flag: -wannabe\n");*/
+  fprintf(stderr,"flag: -nowannabe   to not assign them\n");
   fprintf(stderr,"\n");
   fprintf(stderr,"[ -power #.#] default# %4.2f multi-dimension distance calc\n"
                         ,power);

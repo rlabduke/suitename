@@ -20,6 +20,10 @@
 #include "suiteninpt.h"
 #include "suitenout.h"
 
+/*0.2.070524 preserve chi-1 and chi, so could preserve eta, theta */
+/*0.2.070525 general read dangle record for, e.g.,  eta, theta */
+/*0.2.070628 triage reports zeta-1, epsilon-1, delta-1,... Ltriage codes */
+
 /****main()*******************************************************************/
 main(int argc, char** argv)
 {
@@ -35,7 +39,7 @@ main(int argc, char** argv)
    ptmaster[0] = '\0';  /*default is no point master*/
 
 
-   sprintf(version,"suitename.0.2.070521 ");  /*  VERSION  */
+   sprintf(version,"suitename.0.3.070628 ");  /*  VERSION  */
 
    /* default values before parsecommandline */
    Ltest = 0; /*compile in... */
@@ -45,7 +49,10 @@ main(int argc, char** argv)
 
      /*NOTE: for consistency, edit defaults text in usageout() */
    Lreportout = 1; /* suite by suite suiteness report, & summary */
-   Lchart = 0;     /* summary-less report for MolProbity multichart */
+   Lchart = 0;     /* summary-less report for MolProbity multichart 070521*/
+   Ldangle = 0;  /* read straight dangle records  070525*/
+   Lsourout = 0; /* extra info in kinemage ptIDs. optional as of 070524*/
+   Letatheta = 0; /* theta,eta instead of chi-1,chi kinemage angles 070524*/
    Lkinemageout=0; /* kinemage of the clusters */
    Lstringout = 0; /* 3 char string instead of cluster kinemage */
    Lsuitesin=0;
@@ -57,7 +64,7 @@ main(int argc, char** argv)
    Lchangesout=0;
    NameStr[0] = '\0';
    Lgeneralsatw = 0; /*flag for special general case satellite widths 070328*/
-   Lwannabe = 0; /* -wannabe input flag 070429*/
+   Lwannabe = 1;/* -wannabe input flag 070429, default 070525, else -nowannabe*/
    
    Lsequence = 1; /*output 1 letter Base code sequence part of string 070409*/
    Loverlap = 0;  /*overlap string lines, e.g. 1-20, 11-30, 21-40, ... 070409*/
@@ -119,7 +126,7 @@ fprintf(stderr,"\n");
                   {
                      ibin = 13; /*angles not fully specified*/
                      jclst = 0; /*cluster not assigned in dummy bin*/
-                     sprintf(sour,"tangled "); /*suite incomplete angles*/
+                     sprintf(sour," tangled "); /*suite incomplete angles*/
                      writesuite(ibin,jclst,sour,distance,suiteness,ptmaster,ptcolor);
                        /*binname "inc "  clustername "__" 070414 */
                   }
@@ -252,7 +259,7 @@ int  evaluatesuite(void)
    char ptcolor[16];
 
    /*enters with LOK = 1 */
-   Ltriage=0; Loutlier=0; /*reset flags 070521*/
+   Ltriage=0; Liswannabe=0; Lcomment=0; /*reset flags 070521,070525,070628*/
    ptcolor[0]  = '\0';  /*default is no point color*/
    ptmaster[0] = '\0';  /*default is no point master*/
 
@@ -268,7 +275,7 @@ int  evaluatesuite(void)
 
       if(suiteptr->epsilon < epsilonmin || suiteptr->epsilon > epsilonmax)
       { sprintf(sour," e out  "); LOK = 0; 
-        Ltriage = 5; sprintf(ptmaster,"'E'");}
+        Ltriage = EPSILONM; sprintf(ptmaster,"'E'");}
    }
    if(LOK) /*------ filter on delta minus 1 -----------------------*/
    {
@@ -283,8 +290,8 @@ int  evaluatesuite(void)
       else if(suiteptr->deltam >= delta2min && suiteptr->deltam <= delta2max)
       { puckerdm = 2; LOK = 1; }
       else
-      { puckerdm = 0; sprintf(sour,"bad deltam"); LOK = 0; 
-        Ltriage = 4; sprintf(ptmaster,"'D'");}
+      { puckerdm = 0; sprintf(sour," bad deltam "); LOK = 0; 
+        Ltriage = DELTAM; sprintf(ptmaster,"'D'");}
    }
    if(LOK) /*------ filter on delta        -----------------------*/
    {
@@ -299,11 +306,11 @@ int  evaluatesuite(void)
       else if(suiteptr->delta  >= delta2min && suiteptr->delta  <= delta2max)
       { puckerd = 2; LOK = 1; }
       else
-      { puckerd = 0; sprintf(sour,"bad delta"); LOK = 0; 
-        Ltriage = 4; sprintf(ptmaster,"'D'");}
+      { puckerd = 0; sprintf(sour," bad delta "); LOK = 0; 
+        Ltriage = DELTA; sprintf(ptmaster,"'D'");}
       if(LOK)
       {/*both deltas in range*/
-         sprintf(sour,"%1d%1d delta",puckerdm,puckerd);
+         sprintf(sour," %1d%1d delta ",puckerdm,puckerd);
       }
    }
    if(LOK) /*------ filter on gamma        -----------------------*/
@@ -324,7 +331,7 @@ int  evaluatesuite(void)
       { gammaname = 'm'; LOK = 1; }
       else
       { gammaname = 'o'; LOK = 0; sprintf(sour," g out  ");
-        Ltriage = 3; sprintf(ptmaster,"'T'");}
+        Ltriage = GAMMA; sprintf(ptmaster,"'T'");}
    }
    if(LOK) /*------ filter on alpha        -----------------------*/
    {
@@ -336,7 +343,7 @@ int  evaluatesuite(void)
       {LOK = 1; }
       else
       {LOK = 0; sprintf(sour," a out  ");
-        Ltriage = 1; sprintf(ptmaster,"'T'");}
+        Ltriage = ALPHA; sprintf(ptmaster,"'T'");}
    }
    if(LOK) /*------ filter on beta         -----------------------*/
    {
@@ -348,7 +355,7 @@ int  evaluatesuite(void)
       {LOK = 1; }
       else
       {LOK = 0; sprintf(sour," b out  ");
-        Ltriage = 2; sprintf(ptmaster,"'T'");}
+        Ltriage = BETA; sprintf(ptmaster,"'T'");}
    }
    if(LOK) /*------ filter on zeta         -----------------------*/
    {
@@ -360,7 +367,7 @@ int  evaluatesuite(void)
       {LOK = 1; }
       else
       {LOK = 0; sprintf(sour," z out  ");
-        Ltriage = 6; sprintf(ptmaster,"'T'");}
+        Ltriage = ZETAM; sprintf(ptmaster,"'T'");}
    }
 
    ddg = 0; /*NO bin assigned yet...*/
@@ -428,7 +435,7 @@ int  evaluatesuite(void)
 
          }
       }
-      sprintf(sour,"ddg== %2d",ddg);
+      sprintf(sour," ddg== %2d ",ddg);
    }/*OK to place in one of the 12 bins*/
    else
    {/*culled by single angle triage*/
@@ -722,14 +729,18 @@ fprintf(stderr,"\n");
    } 
    /*sudo END IF ( |s_list_ci| == ? ) */
 
-   sprintf(sour,"%s:%s, %7.3f:%s, %7.3f:"
+   sprintf(sour," %s:%s, %7.3f:%s, %7.3f: "
            ,sourness
            ,bin[i].clst[closestj].clustername,matches[i][closestj]
            ,bin[i].clst[nextclosej].clustername,matches[i][nextclosej]);
 
    clusterout[i][thej] = 1; /*this specific cluster has an entry*/
    
-   if(Lwannabe && strcmp(bin[i].clst[thej].status,"wannabe")==0){Lwannabeout=1;}
+   if(Lwannabe && strcmp(bin[i].clst[thej].status,"wannabe")==0)
+   {
+      Lwannabeout = 1; /*once set, stays set*/
+      Liswannabe = 1;  /*set only for this cluster*/
+   }
 
    /*----------- final suiteness ------------------------------------------*/
    /*sudo COMPUTE dist_si = scaled 7D distance of si to cluster s_clusteri */
@@ -756,7 +767,11 @@ fprintf(stderr,"\n");
       {
          thej = closestj; /*assign in this case*/
          if(Lreportout)
-           {fprintf(fpout,"7D distance forces assignment to closest cluster\n");}
+         {
+            /*"7D distance forces assignment to closest cluster\n");*/
+            sprintf(commentstr," by 7Ddist"); /*070628*/
+            Lcomment=1;
+         }
       } 
    }
    /*sudo ELSE "suiteness" suiti = 0 */
@@ -766,8 +781,10 @@ fprintf(stderr,"\n");
       if(Lassigned)
       {
          if(Lreportout)
-           {fprintf(fpout,"7D distance forces %s assignment to be outlier\n"
-             ,bin[ibin].clst[thej].clustername);}
+         {  /*"7D distance forces %s assignment to be outlier\n"*/
+            sprintf(commentstr," 7D dist %s",bin[ibin].clst[thej].clustername);
+            Lcomment=1; /*070628*/
+         }
       }
       thej = 0; /*make not assigned in any case! */
       suiteness = 0;

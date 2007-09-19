@@ -7,8 +7,22 @@
 #define SUITENOUT extern
 #endif
 
-SUITENOUT int Ltriage,Loutlier; /*diagnostic flags*/
+#define DELTAM   1  /*Ltriage reason flags 070628*/
+#define EPSILONM 2
+#define ZETAM    3
+#define ALPHA    4
+#define BETA     5
+#define GAMMA    6
+#define DELTA    7
 
+/*diagnostic flags*/
+SUITENOUT int Ltriage; /*reset for each suite, set to reason, e.g. DELTAM*/
+SUITENOUT int Liswannabe;
+SUITENOUT int Lcomment; /*for 7D distance forced outlier or closest assignment*/
+SUITENOUT char commentstr[16]; /*and Lcomment  070628*/
+SUITENOUT int Loutlier; /*accummulates*/
+SUITENOUT int LTdeltam,LTdelta,LTepsilon,LTzeta,LTalpha,LTbeta,LTgamma;
+              /* LT...flags accummulate for pointmaster definition 070628*/
 SUITENOUT int L33out,L32out,L23out,L22out,Ltriageout;           /*groups*/
 SUITENOUT int binout[MAXBINS]; /*incl 1--12 named bins */       /*subgroups*/
 SUITENOUT int clusterout[MAXBINS][MAXCLST];                     /*lists*/

@@ -35,6 +35,7 @@ EXTERN char  texts[256];
 typedef struct suitestruct {
    char  ptID[256];
    char  basechr[2];  /*070412*/
+   float chim;
    float deltam;
    float epsilon;
    float zeta;
@@ -42,7 +43,10 @@ typedef struct suitestruct {
    float beta;
    float gamma;
    float delta;
-   float ang[8]; /*to allow count from 1 */
+   float chi;
+   float ang[9]; /*8 to allow count from 1, */
+                 /*9 to save chi-1, chi OR theta, eta angles 070524*/
+   /*stores as names for readability, and indexed for computations*/
 }suitestruct;
 EXTERN struct suitestruct* suiteptr;
 

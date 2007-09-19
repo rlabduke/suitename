@@ -45,6 +45,7 @@ int  getsuite(void)
    {
       LOK = Getoneinputline(); /* ==0 for comment or too-short line */
       /*return global texts[] and itext */
+      if(LOK && (itext<=1 || texts[0]=='#')) {LOK = 0;} /* # dangle comment*/
    }
    if(LOK) /*body is 7D or 9D kinemage with {ptID}*/
    {
@@ -178,6 +179,80 @@ int  loadnewresidue(void)
 }
 /*___loadnewresidue()________________________________________________________*/
 
+/****interpretdanglerecord()**************************************************/
+int  interpretdanglerecord(void)
+{
+   int  i=0,j=0,k=0,n=0,ns=0,nan=0;
+   char numstr[256];
+
+   /*ptID: :  : : :...:alpha:beta:gamma:delta:epsilon:zeta*/
+
+   n = 1; /*count fields from 1 */
+   ns = 0; /*first j of current field*/
+   k = 0; /*counter within a field*/
+
+   for(j=0 ; j<= itext; j++)
+   {/*loop through inputed line*/
+      if(texts[j] == ':' || j==itext)
+      {/* : */
+         {/*close nth field*/
+            if(n <= NptIDfields)
+            {/*ID fields*/
+               {
+                  /*k not decremented, k is index of the : character*/
+                  for(i=0; i<=k; i++)
+                  {
+                     ptID[n][i] = texts[ns+i];
+                  }
+                  if(n == NptIDfields) 
+                  {
+                     ptID[n][k] = '\0'; /*overwrite last : character*/
+                              /*so last char of last field is a Base name char*/
+                      /*and this last field is the full 3char Base name*/
+                     if(strlen(ptID[n]) == 3) 
+                     { /*interpret as Base name --> 1char   070412 */
+                        if     (strstr(NAListA, ptID[n])) {basechr[0] = 'A';}
+                        else if(strstr(NAListG, ptID[n])) {basechr[0] = 'G';}
+                        else if(strstr(NAListC, ptID[n])) {basechr[0] = 'C';}
+                        else if(strstr(NAListU, ptID[n])) {basechr[0] = 'U';}
+                        else if(strstr(NAListT, ptID[n])) {basechr[0] = 'T';}
+                        else {basechr[0] = 'Y';}
+                     }
+                     else {basechr[0] = 'Z';}
+                     basechr[1] = '\0';
+                  } 
+                  else {ptID[n][k+1] = '\0';} /* not overwrite : character*/
+               }
+               /*reset for another field*/
+               {
+                  k=0;
+                  nan=0;
+                  ns = j+1;
+                  n++;
+               }
+            }/*ID fields*/
+            else
+            {/*angle coord fields*/
+               if(nan) {angle[n-NptIDfields] = 9999.99;}
+               else {angle[n-NptIDfields] = floatfromstr(numstr);}
+               k=0;
+               nan=0;
+               ns = j+1;
+               n++;
+            }
+         }/*close nth field*/
+      }/* : */
+      else
+      {/* input character , only actually use numstr for angle fields*/
+         numstr[k++] = texts[j];
+         numstr[k] = '\0'; /*keep string terminated*/
+         if(texts[j] == '?') {nan = 1;} /*NOT a number*/
+      }
+   }/*loop through inputed line*/
+   return(1);
+}
+/*___interpretdanglerecord()________________________________________________*/
+
 /****interpretresiduerecord()*************************************************/
 int  interpretresiduerecord(void)
 {
@@ -256,7 +331,7 @@ int  interpretresiduerecord(void)
 int  interpretsuiterecord(void)
 {  /*hack unprotected way to read well-formated kinemage pt records*/
 
-   int  i=0,j=0,k=0,n=0;
+   int  i=0,j=0,k=0,n=0,nan=0; /*nan 070525*/
    char numstr[256];
    int LptID = 0, iptID = 0;
    char ptIDstr[256];
@@ -288,25 +363,39 @@ int  interpretsuiterecord(void)
       else if( (k > 0 && texts[j] == ' ') || texts[j] == ',' || j==itext)
       {/*white space ends a field*/
          numstr[k] = '\0';
-         angle[n] = floatfromstr(numstr);
+         if(nan) {angle[n] = 9999.99;} /*070525*/
+         else {angle[n] = floatfromstr(numstr);} /*n starts at 0*/
          if(angle[n] < 0) {angle[n] = 360 + angle[n];} /*scope 0 to 360 */
          if(texts[j] == ' ' || texts[j] == ',') /*interior record white space*/
          {/*expect another angle*/
             k=0;
             n++;
+            nan = 0; /*reset not-a-number flag  070525*/
          }
       }
       else
       {/* input character */
-         if(texts[j] != ' ') {numstr[k++] = texts[j];} /*ignore leading blanks*/
+         if(texts[j] != ' ') /*ignore leading blanks*/
+         if(texts[j] == '_' || texts[j] == '?' ){nan = 1;} /*070525*/
+         {numstr[k++] = texts[j];} 
       }
    }/*loop through inputed line*/
    /*presume suite kinemage record was intact and good...*/
 
     strcpy(suiteptr->ptID,ptIDstr);
 
-    if(Nanglefields == 9) {i=1;}
-    else {i=0;}
+    if(Nanglefields == 9) /*rearranged 070524 to preserve chim,chi (eta,theta)*/
+    {
+       i=1;
+       suiteptr->ang[0] = suiteptr->chim = angle[0];
+       suiteptr->ang[8] = suiteptr->chi  = angle[7+i];
+    }
+    else 
+    {
+       i=0;
+       suiteptr->ang[0] = suiteptr->chim = 180.0;
+       suiteptr->ang[8] = suiteptr->chi  = 180.0;
+    }
     suiteptr->ang[1] = suiteptr->deltam  = angle[0+i];
     suiteptr->ang[2] = suiteptr->epsilon = angle[1+i];
     suiteptr->ang[3] = suiteptr->zeta    = angle[2+i];

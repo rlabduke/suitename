@@ -383,7 +383,8 @@ SUITENINIT float clusterav[13][MAXCLST][8];
                       /*flags*/
 SUITENINIT int   Lsuitesin,Lresiduesin,NptIDfields,Nanglefields,Lnewfile;
 SUITENINIT int   Lstringout,Lhelpout,Lchangesout,Lkinemageout;
-SUITENINIT int   Lreportout,Ltestout,Lchart;
+SUITENINIT int   Lreportout,Ltestout; 
+SUITENINIT int   Lchart,Lsourout,Letatheta,Ldangle; /*070521,070524,070525*/
 SUITENINIT char  NameStr[256];
 SUITENINIT int   Lsequence, Loverlap, Loneline; /*070409*/
 SUITENINIT int   Lwannabe; /*070429*/

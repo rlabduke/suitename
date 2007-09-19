@@ -14,9 +14,12 @@ int  initializations(void)
 {
    int   i=0,j=0,LOK=1; /*070426 not using LOK here, was for buildclusterav*/
 
+   Lcomment = 0; /*report 7D distance forces outlier or assignment  070628*/
    Ltriage = 0; Loutlier = 0; /*diagnostic flags*/
    L33out = 0; L32out = 0; L23out = 0; L22out = 0; Ltriageout = 0; /*group*/
-   Lwannabeout = 0; /*070429*/
+   LTdeltam=0;LTdelta=0;LTepsilon=0;LTzeta=0;LTalpha=0;LTbeta=0;LTgamma=0;
+      /* LT...flags accummulate for pointmaster definition 070628*/
+   Liswannabe=0; Lwannabeout = 0; /*070429*/
    clearbinout();       /*flags each found bin: subgroup */
    clearclusterout();   /*flags each found cluster: list */
    resetcoordw(coordw,0,0,0); /*default general cluster half-widths along axes*/
@@ -135,6 +138,10 @@ int  parsecommandline(int *argc, char** argv)
             {
                Lwannabe = 1; 
             }
+            else if(CompArgStr(p+1,"nowannabes", 9)) /*070525*/
+            {
+               Lwannabe = 0; 
+            }
             else if(CompArgStr(p+1,"nosequence", 5))
             {
                Lsequence = 0; 
@@ -155,9 +162,22 @@ int  parsecommandline(int *argc, char** argv)
             {
                Lchangesout = 1; 
             }
-            else if(CompArgStr(p+1,"test", 1))
+            else if(CompArgStr(p+1,"test", 4))
             {
                Ltestout = 1; 
+            }
+            else if(CompArgStr(p+1,"sour", 4)) /*070524*/
+            {
+               Lsourout = 1; 
+            }
+            else if(CompArgStr(p+1,"dangle", 6)) /*070525*/
+            {
+               Ldangle = 1; 
+            }
+            else if(   CompArgStr(p+1,"thetaeta", 5)  /*070524*/
+                    || CompArgStr(p+1,"etatheta", 3)) /*070524*/
+            {
+               Letatheta = 1; 
             }
             else if(   CompArgStr(p+1,"pointIDfields", 5) 
                     || CompArgStr(p+1,"ptID",  2) )
