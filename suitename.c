@@ -21,8 +21,12 @@
 #include "suitenout.h"
 
 /*0.2.070524 preserve chi-1 and chi, so could preserve eta, theta */
-/*0.2.070525 general read dangle record for, e.g.,  eta, theta */
-/*0.2.070628 triage reports zeta-1, epsilon-1, delta-1,... Ltriage codes */
+/*0.3.070525 general read dangle record for, e.g.,  eta, theta */
+/*0.3.070628 triage reports zeta-1, epsilon-1, delta-1,... Ltriage codes */
+/*0.3.070803 notes: rearranged suitenhead.h/janesviews ...  */
+/*                  put something in to say what veiws mean */
+/*  what are masters e and d ???? */
+/*0.3.070919 3g wannabe (tRNA TpseudoUC loop) */
 
 /****main()*******************************************************************/
 main(int argc, char** argv)
@@ -39,7 +43,7 @@ main(int argc, char** argv)
    ptmaster[0] = '\0';  /*default is no point master*/
 
 
-   sprintf(version,"suitename.0.3.070628 ");  /*  VERSION  */
+   sprintf(version,"suitename.0.3.070919 ");  /*  VERSION  */
 
    /* default values before parsecommandline */
    Ltest = 0; /*compile in... */

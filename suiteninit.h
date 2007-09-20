@@ -1,7 +1,7 @@
 /*                        suiteninit.h                            */
 /* suitename.h MAXBINS 14  1--12 named bins, bin 0 triaged, bin 13 incomplete*/
 /* suitename.h MAXCLST 16  practical, <observed, limit of clusters in a bin*/
-         /*clst indexed from 1: bin 33p had 10, index to 11, as of 070428 */
+         /*clst indexed from 1: bin 33p had 10, index to 11, 070428, +1 070919*/
 #define MAXSAT  12  /*maximun number of all satellite clusters, 9 as of 070429*/
 
 #ifdef  SUITENINIT
@@ -117,6 +117,8 @@ struct bindefinition bin[MAXBINS] =
        180, 085.295, 244.085, 203.815, 065.880, 181.130, 054.680, 086.035 ,180},
            {/* 11 */ "5d", 1, "certain", "yellow     ", "ord", NULL,
        180, 079.671, 202.471, 063.064, 068.164, 143.450, 049.664, 082.757 ,180},
+           {/* 12 */ "3g", 1, "wannabe", "gray       ", "ord", NULL,
+       180, 084.000, 195.000, 146.000, 170.000, 170.000, 052.000, 084.000 ,180},
            {/*  N */ "!!", 0, "nothing", "white      ", "out", NULL,
             0,0,0,0,0,0,0,0,0 } /*trailing cluster with LOK==0*/
          }
