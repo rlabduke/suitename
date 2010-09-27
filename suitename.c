@@ -468,7 +468,7 @@ void membership(int ibin)
    float penmindist = 999;
    float pi = 3.14159;
    float suiteness=0;
-   char sour[96],sourness[32]; /*070311 accum report*/
+   char sour[96],sourness[64]; /*070311 accum report*/
    int  Ldominant=0;
    int  LOK = 0;
    float sattodom[8], domtosat[8],sattopt[8],domtopt[8];
