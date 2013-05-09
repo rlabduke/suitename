@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <ctype.h>
 
 #define MAXBINS 14  /*1--12 named bins, bin 0 triaged, bin 13 incomplete*/
 #define MAXCLST 16  /*practical, <observed, limit of clusters in a bin*/
@@ -64,7 +65,7 @@ EXTERN residuestruct* residueptr;
 EXTERN residuestruct* newresidueptr;
 EXTERN residuestruct* oldresidueptr;
 
-EXTERN float matches[MAXBINS][MAXCLST]; 
+EXTERN float matches[MAXBINS][MAXCLST];
     /*incl 1--12 named bins, # defined clsters070429*/
 
 EXTERN float coordw[8];     /*general weightings*/

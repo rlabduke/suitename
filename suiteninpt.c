@@ -95,7 +95,7 @@ int  movenewtooldresidue(void)
     {
        strcpy(oldresidueptr->ptID[j],newresidueptr->ptID[j]);
     }
-    oldresidueptr->basechr[0],newresidueptr->basechr[0]; /*070412*/
+    //oldresidueptr->basechr[0],newresidueptr->basechr[0]; /*070412*/
     oldresidueptr->basechr[0] = '\0';
     oldresidueptr->alpha   = newresidueptr->alpha;
     oldresidueptr->beta    = newresidueptr->beta;
@@ -114,7 +114,7 @@ void printresidue(char* type)
     struct residuestruct* theresidueptr;
 
     if(strcmp(type,"old")==0) {theresidueptr = oldresidueptr;}
-    else {theresidueptr = newresidueptr;} 
+    else {theresidueptr = newresidueptr;}
     fprintf(stderr,"%s ",type);
     for(j=1; j<=NptIDfields; j++)
     {
@@ -204,12 +204,12 @@ int  interpretdanglerecord(void)
                   {
                      ptID[n][i] = texts[ns+i];
                   }
-                  if(n == NptIDfields) 
+                  if(n == NptIDfields)
                   {
                      ptID[n][k] = '\0'; /*overwrite last : character*/
                               /*so last char of last field is a Base name char*/
                       /*and this last field is the full 3char Base name*/
-                     if(strlen(ptID[n]) == 3) 
+                     if(strlen(ptID[n]) == 3)
                      { /*interpret as Base name --> 1char   070412 */
                         if     (strstr(NAListA, ptID[n])) {basechr[0] = 'A';}
                         else if(strstr(NAListG, ptID[n])) {basechr[0] = 'G';}
@@ -220,7 +220,7 @@ int  interpretdanglerecord(void)
                      }
                      else {basechr[0] = 'Z';}
                      basechr[1] = '\0';
-                  } 
+                  }
                   else {ptID[n][k+1] = '\0';} /* not overwrite : character*/
                }
                /*reset for another field*/
@@ -278,12 +278,12 @@ int  interpretresiduerecord(void)
                   {
                      ptID[n][i] = texts[ns+i];
                   }
-                  if(n == NptIDfields) 
+                  if(n == NptIDfields)
                   {
                      ptID[n][k] = '\0'; /*overwrite last : character*/
                               /*so last char of last field is a Base name char*/
                       /*and this last field is the full 3char Base name*/
-                     if(strlen(ptID[n]) == 3) 
+                     if(strlen(ptID[n]) == 3)
                      { /*interpret as Base name --> 1char   070412 */
                         if     (strstr(NAListA, ptID[n])) {basechr[0] = 'A';}
                         else if(strstr(NAListG, ptID[n])) {basechr[0] = 'G';}
@@ -294,7 +294,7 @@ int  interpretresiduerecord(void)
                      }
                      else {basechr[0] = 'Z';}
                      basechr[1] = '\0';
-                  } 
+                  }
                   else {ptID[n][k+1] = '\0';} /* not overwrite : character*/
                }
                /*reset for another field*/
@@ -377,7 +377,7 @@ int  interpretsuiterecord(void)
       {/* input character */
          if(texts[j] != ' ') /*ignore leading blanks*/
          if(texts[j] == '_' || texts[j] == '?' ){nan = 1;} /*070525*/
-         {numstr[k++] = texts[j];} 
+         {numstr[k++] = texts[j];}
       }
    }/*loop through inputed line*/
    /*presume suite kinemage record was intact and good...*/
@@ -390,7 +390,7 @@ int  interpretsuiterecord(void)
        suiteptr->ang[0] = suiteptr->chim = angle[0];
        suiteptr->ang[8] = suiteptr->chi  = angle[7+i];
     }
-    else 
+    else
     {
        i=0;
        suiteptr->ang[0] = suiteptr->chim = 180.0;
@@ -404,6 +404,7 @@ int  interpretsuiterecord(void)
     suiteptr->ang[6] = suiteptr->gamma   = angle[5+i];
     suiteptr->ang[7] = suiteptr->delta   = angle[6+i];
     /*now DO NOT need to loadsuite() */
+    return(1);
 }
 /*___interpretsuiterecord()________________________________________________*/
 
@@ -482,9 +483,9 @@ float    floatfromstr(char ins[256])
 
         freturn = 0.0;
         Lstart = 1;
-        n = 0; 
+        n = 0;
         m = 0;
-        OK = 1;    
+        OK = 1;
         if(ins[0] != '\0')
         {/* not zero length C string */
             while(OK)
@@ -495,7 +496,7 @@ float    floatfromstr(char ins[256])
                         ins[n] == '3' || ins[n] == '4' || ins[n] == '5' ||
                         ins[n] == '6' || ins[n] == '7' || ins[n] == '8' ||
                         ins[n] == '9' || ins[n] == '.' || ins[n] == '-'   )
-                { 
+                {
                     s[m] = ins[n];
                     m++;
                     Lstart = 0;

@@ -29,7 +29,7 @@
 /*0.3.070919 3g wannabe (tRNA TpseudoUC loop) */
 
 /****main()*******************************************************************/
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
    int  LOK=1,ibin=0,jclst=0;
    char sour[32];
@@ -43,11 +43,11 @@ main(int argc, char** argv)
    ptmaster[0] = '\0';  /*default is no point master*/
 
 
-   sprintf(version,"suitename.0.3.070919 ");  /*  VERSION  */
+   sprintf(version,"suitename.0.4.130509 ");  /*  VERSION  */
 
    /* default values before parsecommandline */
    Ltest = 0; /*compile in... */
-   Ltestout = 0; /*commandline -test */ 
+   Ltestout = 0; /*commandline -test */
    fpin = stdin;
    fpout = stdout;
 
@@ -69,7 +69,7 @@ main(int argc, char** argv)
    NameStr[0] = '\0';
    Lgeneralsatw = 0; /*flag for special general case satellite widths 070328*/
    Lwannabe = 1;/* -wannabe input flag 070429, default 070525, else -nowannabe*/
-   
+
    Lsequence = 1; /*output 1 letter Base code sequence part of string 070409*/
    Loverlap = 0;  /*overlap string lines, e.g. 1-20, 11-30, 21-40, ... 070409*/
    Loneline = 0;  /*string output all as oneline 070409*/
@@ -87,7 +87,7 @@ main(int argc, char** argv)
      newresidueptr = (residuestruct*)malloc(sizeof(struct residuestruct));
      oldresidueptr = (residuestruct*)malloc(sizeof(struct residuestruct));
      suiteptr      = (suitestruct*)malloc(sizeof(struct suitestruct));
-     if(   newresidueptr != NULL 
+     if(   newresidueptr != NULL
          && oldresidueptr != NULL
          && suiteptr != NULL
         )  {LOK=1;}
@@ -96,11 +96,11 @@ main(int argc, char** argv)
      if(LOK)
      {/*storage allocated*/
        LOK = initializations(); /*070325*/
-       if(LOK) 
+       if(LOK)
        {/*LOK to work*/
 
          clearnewresidue(); /*only at beginning so first-1 handled correctly*/
-/*sudo pre-Algorithm: accummulate suites or suites from residues */ 
+/*sudo pre-Algorithm: accummulate suites or suites from residues */
          while(!LatEOF) /*allow EOF on end of last line, see Lhitend */
          {/*loop over all residues in the file*/
 /*
@@ -121,12 +121,12 @@ fprintf(stderr,"\n");
             if(Lsuitesin) {LOK = getsuite();}
             else {LOK = getresidue(); Lresiduesin = 1;}
             if(LOK)
-            { 
-               if(Lresiduesin) {LOK = loadsuite();}    
+            {
+               if(Lresiduesin) {LOK = loadsuite();}
                if(LOK)
                {
                   LOK = confirmsuite();
-                  if(!LOK) 
+                  if(!LOK)
                   {
                      ibin = 13; /*angles not fully specified*/
                      jclst = 0; /*cluster not assigned in dummy bin*/
@@ -144,9 +144,9 @@ fprintf(stderr,"\n");
 
                      if(ibin > 0){membership(ibin);}
 
-                  }   
+                  }
                }/*loaded suite*/
-            }/*got a residue (or a suite from a kinemage)*/    
+            }/*got a residue (or a suite from a kinemage)*/
          }/*loop over all residues in the file*/
 
          writeoutput();  /*has logicals for what output possible*/
@@ -161,7 +161,7 @@ fprintf(stderr,"\n");
          initializations();
          L33out = L32out = L23out = L22out = 1;
          for(i=1; i<=12; i++)
-         { 
+         {
             binout[i]=1;
             /*for(j=1; j<ddgmax; j++)*/
             j=0; /*zeroth cluster of a bin holds its outliers*/
@@ -211,7 +211,7 @@ fprintf(stderr,"\n");
      fprintf(stderr,"alphamin    %.0f, alphamax   %.0f\n",alphamin,alphamax);
      fprintf(stderr,"betamin     %.0f, betamax    %.0f\n",betamin,betamax);
      fprintf(stderr,"zetamin     %.0f, zetamax    %.0f\n",zetamin,zetamax);
-     fprintf(stderr,"cluster half-widths, & special satellite widths"); 
+     fprintf(stderr,"cluster half-widths, & special satellite widths");
      fprintf(stderr,"    version: %s\n",clusterhalfwidthsversion);
      fprintf(stderr,"deltamw  %.0f\n",deltamw);
      fprintf(stderr,"epsilonw %.0f, epsilonsatw %.0f\n",epsilonw,epsilonsatw);
@@ -244,7 +244,7 @@ fprintf(stderr,"\n");
          usageout();
       }
    }
-   exit(0);
+   return(0);
 }
 /*___main()__________________________________________________________________*/
 
@@ -278,7 +278,7 @@ int  evaluatesuite(void)
        /*sudo THEN s_bini = e_triage AND !OK */
 
       if(suiteptr->epsilon < epsilonmin || suiteptr->epsilon > epsilonmax)
-      { sprintf(sour," e out  "); LOK = 0; 
+      { sprintf(sour," e out  "); LOK = 0;
         Ltriage = EPSILONM; sprintf(ptmaster,"'E'");}
    }
    if(LOK) /*------ filter on delta minus 1 -----------------------*/
@@ -294,7 +294,7 @@ int  evaluatesuite(void)
       else if(suiteptr->deltam >= delta2min && suiteptr->deltam <= delta2max)
       { puckerdm = 2; LOK = 1; }
       else
-      { puckerdm = 0; sprintf(sour," bad deltam "); LOK = 0; 
+      { puckerdm = 0; sprintf(sour," bad deltam "); LOK = 0;
         Ltriage = DELTAM; sprintf(ptmaster,"'D'");}
    }
    if(LOK) /*------ filter on delta        -----------------------*/
@@ -310,7 +310,7 @@ int  evaluatesuite(void)
       else if(suiteptr->delta  >= delta2min && suiteptr->delta  <= delta2max)
       { puckerd = 2; LOK = 1; }
       else
-      { puckerd = 0; sprintf(sour," bad delta "); LOK = 0; 
+      { puckerd = 0; sprintf(sour," bad delta "); LOK = 0;
         Ltriage = DELTA; sprintf(ptmaster,"'D'");}
       if(LOK)
       {/*both deltas in range*/
@@ -445,7 +445,7 @@ int  evaluatesuite(void)
    {/*culled by single angle triage*/
 
     /*sudo ELSE {s_bini already set to be some kind of triage} */
- 
+
       Ltriageout = 1;
       binout[0] = 1;
       ibin = 0;
@@ -486,7 +486,7 @@ void membership(int ibin)
    clearmatches();
 
    matchcnt = 0;
-   i = ibin; 
+   i = ibin;
 
    /*sudo */
    /*sudo program body: cluster membership in assigned s_bini */
@@ -509,8 +509,8 @@ void membership(int ibin)
 
    while(bin[i].clst[j].LOK) /*070428*/
    {/*loop over all observed clusters in this ith bin*/
-      if(   !Lwannabe 
-         && strcmp(bin[i].clst[j].status,"wannabe")==0) {j++;continue;}/*match*/ 
+      if(   !Lwannabe
+         && strcmp(bin[i].clst[j].status,"wannabe")==0) {j++;continue;}/*match*/
       /*empty bin dummy cluster at 0,0,0,0,0,0,0 is out of angle range*/
       /*but safer to explicity skip*/
       /*if(i==3 || i==9){continue;}  not needed  070428*/
@@ -525,13 +525,13 @@ void membership(int ibin)
       {
          closestd = distance;
          closestj = j;
-      } 
+      }
 
       if(distance >= 0) /* store all distances, needed for diagnostics */
       {
-        matches[i][j] = distance;  
+        matches[i][j] = distance;
         /*sudo IF 0 <= d < 1 THEN */
-        if(distance < 1) /* suite could be a member of this cluster */ 
+        if(distance < 1) /* suite could be a member of this cluster */
         {   /*APPEND to list of clusters of which suite could be a member*/
             /*sudo APPEND cj to s_list_ci */
             /*sudo FLAG when possible_cluster is a dominant_cluster */
@@ -558,12 +558,12 @@ void membership(int ibin)
 
    /*now find the next closest cluster (for debugging purposes)*/
    nextclosed = 999; /*next closest cluster*/
-   
+
    j = 1; /*start with index 1 for first observed clst in this bin  070428*/
    while(bin[i].clst[j].LOK) /*070428*/
    {/*loop over all clusters in this ith bin*/
       if(   !Lwannabe
-         && strcmp(bin[i].clst[j].status,"wannabe")==0) {j++;continue;}/*match*/ 
+         && strcmp(bin[i].clst[j].status,"wannabe")==0) {j++;continue;}/*match*/
       if(matches[i][j] < nextclosed && j != closestj)
       {
          nextclosed = matches[i][j];
@@ -575,7 +575,7 @@ void membership(int ibin)
    /*end logic: find all clusters that match this conformation_______________*/
 
    /*now assign suite to a particular cluster*/
-   Lassigned = 0; 
+   Lassigned = 0;
 
    /*sudo */
    /*sudo IF      |s_list_ci| == 1 THEN */
@@ -610,15 +610,15 @@ void membership(int ibin)
 
          /*sudo ASSIGN domj = dominant cj in s_list_ci */
          /*sudo ASSIGN thej = cj in s_list_ci minimizing d for all non-dominant cj in s_list_ci */
-      
+
          penmindist = 999;
-         
+
          j = 1;/*start with index 1 for first observed clst in this bin 070428*/
          while(bin[i].clst[j].LOK) /*070428*/
          {/*loop over all clusters in this ith bin*/
             if(   !Lwannabe
-               && strcmp(bin[i].clst[j].status,"wannabe")==0) {j++;continue;} 
-            
+               && strcmp(bin[i].clst[j].status,"wannabe")==0) {j++;continue;}
+
             if(   ( strcmp(bin[i].clst[j].domsatness,"dom")!=0 )/*i.e. NOT dom*/
                && (matches[i][j] < penmindist))
             {/*find shortest distance to non-dominant and satellite clusters*/
@@ -652,7 +652,7 @@ void membership(int ibin)
             vector7ab(sattodom, bin[i].clst[thej].ang, bin[i].clst[domj].ang);
 
             /*sudo IF si is located between the means of thej and domj THEN */
-            if(   (dotproduct(domtopt,domtosat,4) > 0) 
+            if(   (dotproduct(domtopt,domtosat,4) > 0)
                 &&(dotproduct(sattopt,sattodom,4) > 0) )
             {/*pt between dom and sat*/
 
@@ -662,7 +662,7 @@ void membership(int ibin)
                /*recalc distances to dominant cluster and to satellite cluster*/
                /*considering different weights between special cluster pairs */
                resetcoordw(dominantw, i,domj,0); /*set to dominant  widths*/
-               resetcoordw(satellitew,i,thej,Lgeneralsatw); 
+               resetcoordw(satellitew,i,thej,Lgeneralsatw);
                  /*set to satellite widths, using Lgeneralsatw  070414*/
                assignweights(i,thej,dominantw,satellitew);
                   /*special widths for this satellite: weight dom--sat pair*/
@@ -730,7 +730,7 @@ fprintf(stderr,"\n");
       /*thej = closestj; NOT viable to have outlier named by closest cluster*/
       /* some are very far from any cluster, */
       /* and even a singleton defines an extant cluster and makes a ring*/
-   } 
+   }
    /*sudo END IF ( |s_list_ci| == ? ) */
 
    sprintf(sour," %s:%s, %7.3f:%s, %7.3f: "
@@ -739,7 +739,7 @@ fprintf(stderr,"\n");
            ,bin[i].clst[nextclosej].clustername,matches[i][nextclosej]);
 
    clusterout[i][thej] = 1; /*this specific cluster has an entry*/
-   
+
    if(Lwannabe && strcmp(bin[i].clst[thej].status,"wannabe")==0)
    {
       Lwannabeout = 1; /*once set, stays set*/
@@ -776,7 +776,7 @@ fprintf(stderr,"\n");
             sprintf(commentstr," by 7Ddist"); /*070628*/
             Lcomment=1;
          }
-      } 
+      }
    }
    /*sudo ELSE "suiteness" suiti = 0 */
       /*sudo ASSIGN s_clusteri = outlier */

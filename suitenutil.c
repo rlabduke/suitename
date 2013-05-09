@@ -66,7 +66,8 @@ float dotproduct(float* first, float* secnd, int nang)
    int k=0,kmin=0,kmax=0;
    float answer=0;
 
-   if(nang = 4){kmin=2; kmax=5;}
+   //if(nang = 4){kmin=2; kmax=5;}
+   if(nang == 4){kmin=2; kmax=5;}
    else {kmin=1; kmax=7;}
 
    answer = 0;
@@ -76,7 +77,7 @@ float dotproduct(float* first, float* secnd, int nang)
       /* deltam epsilon zeta   alpha  beta   gamma  delta */
       /*    X                                  X      X   */
       /*    X not used in 4 angle calc*/
-      
+
       answer = answer + (first[k] * secnd[k]);
    }
    return(answer);
