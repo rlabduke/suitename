@@ -559,6 +559,8 @@ void usageout(void) /* -h  -help */
      "dangle \"alpha, beta, gamma, delta, epsilon, zeta\" in.pdb >out.dngl\n");
   fprintf(stderr,
      "label:model:chain:number:ins:type:alpha:beta:gamma:delta:epsilon:zeta\n");
+  fprintf(stderr,"if the file has alternate conformations, then use both -pointIDfields # -altIDfield # to specify the number of pointID fields and which field contains the altID\n"); /* S.J. 01/07/2014*/
+  fprintf(stderr,"use -altIDval <altID> to specify which alternate conformation to calculate suite for. By default calculated for alt A\n");
   fprintf(stderr,"-suitein presumes point records from a kinemage\n");
   fprintf(stderr,"{pointID} 7 or 9 anglefields \n");
   fprintf(stderr,

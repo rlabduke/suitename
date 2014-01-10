@@ -360,8 +360,8 @@ extern float zetamin   , zetamax   ;
 #ifdef DEFINITIONS
    char  axeslimitsversion[] = "070326"; 
    float epsilonmin = 155, epsilonmax = 310; /*070130*/
-   float delta3min  =  55, delta3max  = 110;
-   float delta2min  = 120, delta2max  = 175;
+   float delta3min  =  60, delta3max  = 105; /* changed by S.J. on 06/06/2011 */
+   float delta2min  = 125, delta2max  = 165;
    float gammapmin  =  20, gammapmax  =  95; /*max 070326*/
    float gammatmin  = 140, gammatmax  = 215; /*max 070326*/
    float gammammin  = 260, gammammax  = 335; /*max 070326*/
@@ -383,11 +383,11 @@ SUITENINIT int   dominate[13], satellites[13][4];
 SUITENINIT float clusterav[13][MAXCLST][8];
 
                       /*flags*/
-SUITENINIT int   Lsuitesin,Lresiduesin,NptIDfields,Nanglefields,Lnewfile;
-SUITENINIT int   Lstringout,Lhelpout,Lchangesout,Lkinemageout;
+SUITENINIT int   Lsuitesin,Lresiduesin,NptIDfields,Nanglefields,Lnewfile,altIDfield; /* added altIDfield and altID variable - S.J. 01/07/2014*/
+SUITENINIT int   Lstringout,Lhelpout,Lchangesout,Lkinemageout,LNptIDfields,LaltIDfield,Luseincorrect,LaltID; /* added last four variables as flags to check for correct usage of altIDfield - S.J. 01/07/2014*/
 SUITENINIT int   Lreportout,Ltestout; 
 SUITENINIT int   Lchart,Lsourout,Letatheta,Ldangle; /*070521,070524,070525*/
-SUITENINIT char  NameStr[256];
+SUITENINIT char  NameStr[256],altID[2]; /* last variable added by S.J. 01/07/2014*/
 SUITENINIT int   Lsequence, Loverlap, Loneline; /*070409*/
 SUITENINIT int   Lwannabe; /*070429*/
 

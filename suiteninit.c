@@ -182,6 +182,7 @@ int  parsecommandline(int *argc, char** argv)
             else if(   CompArgStr(p+1,"pointIDfields", 5) 
                     || CompArgStr(p+1,"ptID",  2) )
             {
+	       LNptIDfields=1; /* flag to see if this is specified or not - S.J. 01/07/2014*/
                i = i+1; /*number of pointID fields is in the next string*/
                p = argv[i];
                j=0;
@@ -197,6 +198,32 @@ int  parsecommandline(int *argc, char** argv)
                     j=999; /*end the while loop*/
                  }
                }/*strobe out number*/
+            }
+            else if(CompArgStr(p+1,"altIDfield", 10)) /* to check for altIDfield and storing it S.J. 01/07/2014*/
+            {
+	       LaltIDfield=1; 
+               i = i+1; /*altID field is in the next string*/
+               p = argv[i];
+               j=0;
+               k=0;
+               while(j<256)
+               {/*strobe out number*/
+                 if( isdigit(p[j]) ) { numstr[k] = p[j]; k++; j++; }
+                 else if(k==0) {/*no char yet*/ j++; }
+                 else
+                 {/*presume whole number is in*/
+                    numstr[k]='\0'; /*end number string*/
+                    sscanf(numstr,"%d",&altIDfield);
+                    j=999; /*end the while loop*/
+                 }
+               }/*strobe out number*/
+            }
+	    else if(CompArgStr(p+1,"altIDval",8)) /* to get the value of the altID - S.J. 01/07/2014*/
+            {
+                  LaltID=1;
+                  i = i+1;
+                  p=argv[i];
+                  altID[0]=p[0];
             }
             else if(   CompArgStr(p+1,"angles",  5) 
                     || CompArgStr(p+1,"anglefields", 5) 
@@ -247,7 +274,8 @@ int  parsecommandline(int *argc, char** argv)
       }/*presume an input file name*/
    }/*loop over arguments*/
    /*070222 much of this not yet implemented*/
-   if( Lhelpout || Ltestout || Lchangesout || Lnewfile) {LOK = 0;}
+   if(LaltIDfield == 1 && LNptIDfields == 0) {Luseincorrect=1;} /* added to check is both altID and pointID are specified - S.J. 01/07/2014*/
+   if( Lhelpout || Ltestout || Lchangesout || Lnewfile || Luseincorrect) {LOK = 0;} /* added Luseincorrect check S.J. 01/07/2014*/
    else {LOK = 1;}
    return(LOK);
 }

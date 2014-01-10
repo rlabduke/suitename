@@ -7,8 +7,9 @@
 
 #include "suiteninit.h"
 #include "suitenscrt.h"
+#include "suitenutil.h" 
 
-/****getresidue()*************************************************************/
+/****getresidue()*************************************************************/ 
 int  getresidue(void)
 {
    int LOK=0;
@@ -24,7 +25,7 @@ int  getresidue(void)
    {
       LOK = interpretresiduerecord();
       /* ptID: : :alpha:beta:gamma:delta:epsilon:zeta */
-      /*loads ptID[NptIDfields], angle[6] */
+      /*loads ptID[NptIDfields], angle[6] */ 
       if(LOK)
       {
          movenewtooldresidue();
@@ -63,7 +64,7 @@ int  loadsuite(void)
     int  j=0,k=0,n=0;
 
     n=0;
-    for(j=1; j<=NptIDfields; j++)
+    for(j=1; j<=NptIDfields; j++) 
     {
        for(k=0; k<32; k++)
        {
@@ -180,7 +181,7 @@ int  loadnewresidue(void)
 /*___loadnewresidue()________________________________________________________*/
 
 /****interpretdanglerecord()**************************************************/
-int  interpretdanglerecord(void)
+int  interpretdanglerecord(void) 
 {
    int  i=0,j=0,k=0,n=0,ns=0,nan=0;
    char numstr[256];
@@ -323,6 +324,13 @@ int  interpretresiduerecord(void)
          if(texts[j] == '?') {nan = 1;} /*NOT a number*/
       }
    }/*loop through inputed line*/
+   if(LaltIDfield) /* if the altIDfield specified - S.J. 01/07/2014*/
+   { 
+        if(!LaltID) /* if the user has not specified which alt to calculate for, calculate for altA*/
+        	altID[0]='A';
+	if(!CompArgStr(ptID[altIDfield],altID,1) && !CompArgStr(ptID[altIDfield]," ",1)) 
+         		return(0);
+   }
    return(1);
 }
 /*___interpretresiduerecord()________________________________________________*/

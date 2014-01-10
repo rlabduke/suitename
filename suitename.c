@@ -27,7 +27,8 @@
 /*                  put something in to say what veiws mean */
 /*  what are masters e and d ???? */
 /*0.3.070919 3g wannabe (tRNA TpseudoUC loop) */
-
+/*0.3.110606 range of delta updated by S.J. */
+/* 01/07/2014 S.J. updated so that it can take input with alternate conformations, *nd by default will calculate the suite for altA*/
 /****main()*******************************************************************/
 int main(int argc, char** argv)
 {
@@ -62,9 +63,15 @@ int main(int argc, char** argv)
    Lsuitesin=0;
    Lresiduesin=1;
    NptIDfields=6;  /*for dangle residue input*/
+   altIDfield=0; /* by default, no altID field - S.J. 01/07/2014*/ 
+   altID[0]='\0'; altID[1]='\0';
    Nanglefields=9; /*for 9D kinemage edited suite input*/
    Lnewfile=0;
    Lhelpout=0;
+   LNptIDfields=0; /* initializing the four variables to check correct usage of altIDfield - S.J. 01/07/2014*/
+   LaltIDfield=0;
+   Luseincorrect=0; 
+   LaltID=0;
    Lchangesout=0;
    NameStr[0] = '\0';
    Lgeneralsatw = 0; /*flag for special general case satellite widths 070328*/
@@ -78,8 +85,10 @@ int main(int argc, char** argv)
    {
      LOK = parsecommandline(&argc, argv);
    }
+
    if(LOK)
-   {/*command OK*/
+   {
+      /*command OK*/
      inittextblock(&mainscratch); /*__open scratch "tapes" */
      /*--rewind scratch "tapes", inplicit with inittextblock() */
      /*--allocation of space automatic when attempting write*/
@@ -238,6 +247,11 @@ fprintf(stderr,"\n");
                fprintf(stderr,": %s\n",satinfo[k].doma);
             }
          }
+      }
+      else if (Luseincorrect) /* if both the point field and alt field are not specified, then exit - S.J. 01/07/2014*/
+      {
+	fprintf(stderr,"Please specify both -altIDfield and -pointIDfields\n");
+        usageout();
       }
       else /*Lhelpout*/
       {

@@ -51,7 +51,7 @@ typedef struct suitestruct {
 }suitestruct;
 EXTERN struct suitestruct* suiteptr;
 
-typedef struct residuestruct {
+typedef struct residuestruct { 
    char  ptID[10][32];
    char  basechr[2];  /*070412*/
    float alpha;
