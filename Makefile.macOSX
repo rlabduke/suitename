@@ -1,12 +1,16 @@
 # suitename
 
+MIN_OS      = -mmacosx-version-min=10.6
+SDK_HOME    = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk
+MACHINEFLAGS = -arch x86_64
+
 ifeq ($(MAKECMDGOALS),debug)
-	CFLAGS = -g -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc
+	CFLAGS = -g -isysroot $(SDK_HOME) $(MACHINEFLAGS) $(MIN_OS)
 else
-	CFLAGS = -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc
+	CFLAGS = -isysroot $(SDK_HOME) $(MACHINEFLAGS) $(MIN_OS)
 endif
 
-LIBS = -lm -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc
+LIBS = -lm -Wl,-syslibroot,$(SDK_HOME) $(MACHINEFLAGS) $(MIN_OS)
 
 # ---------------------------------------------------------------------
 PROG_FLGS   =  
