@@ -284,6 +284,10 @@ int  interpretresiduerecord(void)
                      ptID[n][k] = '\0'; /*overwrite last : character*/
                               /*so last char of last field is a Base name char*/
                       /*and this last field is the full 3char Base name*/
+                      if(!strcmp(ptID[n]," DA") || !strcmp(ptID[n]," DG") || !strcmp(ptID[n]," DC") || !strcmp(ptID[n]," DT")) // SJ - 09/17/2014 to ignore DNA residues
+                      {
+                          return(0);
+                      }
                      if(strlen(ptID[n]) == 3)
                      { /*interpret as Base name --> 1char   070412 */
                         if     (strstr(NAListA, ptID[n])) {basechr[0] = 'A';}

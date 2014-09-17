@@ -29,6 +29,7 @@
 /*0.3.070919 3g wannabe (tRNA TpseudoUC loop) */
 /*0.3.110606 range of delta updated by S.J. */
 /* 01/07/2014 S.J. updated so that it can take input with alternate conformations, *nd by default will calculate the suite for altA*/
+/* 09/18/2014 S.J. updated so that suitename will ignore DNA residues*/
 /****main()*******************************************************************/
 int main(int argc, char** argv)
 {
