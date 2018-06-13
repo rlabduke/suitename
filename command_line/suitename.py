@@ -1,4 +1,5 @@
 # LIBTBX_SET_DISPATCHER_NAME phenix.suitename
+# LIBTBX_SET_DISPATCHER_NAME molprobity.suitename
 
 import libtbx.load_env
 from libtbx.utils import Usage
