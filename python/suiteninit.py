@@ -1,6 +1,57 @@
 import suitenamedefs
 from suitenamedefs import Bin, Cluster, SatelliteInfo
 
+from numpy import array
+import argparse
+
+MAX_CLUSTERS = 16  # practical, observed limit of clusters in a bin
+args = {}
+
+
+#***parseCommandLine()*******************************************************
+def parseCommandLine():
+  global args
+
+  parser = argparse.ArgumentParser()
+  parser.add_argument('infile', nargs='?', default="")
+
+  # input styles
+  parser.add_argument("--residuein")
+  parser.add_argument("--residuesin")
+  parser.add_argument("--suitein")
+  parser.add_argument("--suitesin")
+  
+  # output styles
+  outputStyle = parser.add_mutually_exclusive_group()
+  outputStyle.add_argument("--report")  # the default format
+  outputStyle.add_argument("--string")
+  outputStyle.add_argument("--kinemage")
+  parser.add_argument("--chart")     # a modifier to report
+  
+  # additional options
+  parser.add_argument("--satellites")
+  parser.add_argument("--wannabes")
+  parser.add_argument("--nosequence")
+  parser.add_argument("--etatheta")
+
+  # numerical options
+  parser.add_argument("--pointIDfields", type=int, default=6)
+  parser.add_argument("--ptID", type=int, default=0)
+  parser.add_argument("--altID", type=str, default="A")
+  # the following is deprecated:
+  parser.add_argument("--altIDField", type=int, default=4)
+  parser.add_argument("--angles", type=int, default=9)
+  parser.add_argument("--resAngles", type=int, default=6)
+
+  # now actually parse them
+  args = parser.parse_args()
+  if args.ptID:
+    args.pointIDfields = args.ptID
+  pass
+
+
+#*** codes to match various residues ****************************
+
 idFields = 5
 match_list = (
     ( ":ADE:  A:A  : Ar:ATP:ADP:AMP:T6A:1MA:RIA:  I:I  :", "A"),
@@ -9,56 +60,15 @@ match_list = (
     ( ":URA:URI:  U: Ur:U  :UTP:UDP:UMP:5MU:H2U:PSU:4SU:", "U"),
     ( ":THY:  T:T  : Tr:TTP:TDP:TMP:", "T"))
 
-class Suite:
-    pointID=-1
-    baseChar=" "       # AGCUT or a few others
-    chim=0
-    deltam=0
-    epsilon=0
-    zeta=0
-    alpha=0
-    beta=0
-    gamma=0
-    delta=0
-    chi=0
-    angle=9*[0]
 
-
-def interpretDangleRecord(line):
-    record=Suite()
-    n=1
-    ns=0
-    k=0
-
-    fields=line.split(":")
-    for f in fields:
-        if n <= idFields:
-            id[n] = f
-            base = 0
-            if n == idFields:
-                if len(f) == 3:
-                    baseChar = "Y"
-                    for m in matchList:
-                        codes, char = m
-                        if codes.find(f):
-                            baseChar =char
-                            break
-                else:
-                    baseChar = "Z"
-        else:#angle coordinate fields
-            if find(f, "?"):
-                number = 9999
-            else:
-                angle[n-idFields]
-                number = int(f)
-
+#*** Special data relating to satellite clusters ****************
 
 # This function operates on the satelliteData list below
 # it creates an associated dictionary based on the name
-def buildSatelliteTable(data):
+def buildSatelliteTable():
     global satelliteTable
     satelliteTable = {}
-    for item in data:
+    for item in satelliteData:
         name = item[0]
         satWidths = item[1]
         domWidths = item[2]
@@ -66,6 +76,28 @@ def buildSatelliteTable(data):
         satelliteTable[name] = SatelliteInfo(name, dominant, satWidths, domWidths)
 
 
+# The satellite data:
+# The widths below are used to determine multidimensional hyperellipsoidal distances.
+# A distance <= 1  is considered "in" the cluster
+# The normalWidths are used for a typical cluster.
+# The satelliteWidths are an exception, used for satellite clusters.
+# The satelliteData are exceptions to the satelliteWidths, for certain specific satellite clusters.
+
+clusterhalfwidthsversion = "070328"
+deltamw  = 28
+epsilonw = 60; epsilonsatw = 50  # satw 070328
+zetaw    = 55; zetasatw    = 50  # satw 070328
+alphaw   = 50; alphasatw   = 45  # satw 070328
+betaw    = 70; betasatw    = 60  # satw 070328
+gammaw   = 35
+deltaw   = 28
+
+
+# width arrays set the widths of clusters in the various dimensions
+# the zeroes on either end may someday be replaced with widths for the
+# chi angles
+normalWidths =    array((0, deltamw, epsilonw, zetaw, alphaw, betaw, gammaw, deltaw, 0))
+satelliteWidths = array((0, deltamw, epsilonsatw, zetasatw, alphasatw, betasatw, gammaw, deltaw, 0))
 
 satelliteData = (
   #  sat         9 angles sat widths                    9 angles dom width              dom
@@ -80,12 +112,21 @@ satelliteData = (
     ("6j", ( 0,  0,  0,  0,  0, 60,  0,  0,  0), ( 0,  0,  0,  0,  0, 60,  0,  0,  0), "1a")
 )
 
-bin0data = ("trig",
+
+def getSatelliteInfo(name):
+  return satelliteTable[name]
+
+
+#*** Cluster data  *******************************************************
+
+# The cluster data: centers of each cluster in 7 dimensions
+#   (number, name, status, color, dominance ... the 7 angles)
+bin0data = (0, "trig",
     ( 0 , "!!", "triaged", "white      ", "tri",
         (0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0)),
 )
 
-bin1data = ("33 p",
+bin1data = (1, "33 p",
     ( 0 , "!!", "outlier", "white      ", "out", 
         (0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0)),
     ( 1 , "1a", "certain", "yellowtint ", "dom", 
@@ -114,7 +155,7 @@ bin1data = ("33 p",
         (180.0,  84.0,  195.0,  146.0,  170.0,  170.0,  52.0,  84.0,  180.0)),
 )
 
-bin2data = ("33 t",
+bin2data = (2, "33 t",
     ( 0 , "!!", "outlier", "white      ", "out",
         (0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0)),
     ( 1 , "1e", "certain", "red        ", "ord",
@@ -129,14 +170,14 @@ bin2data = ("33 t",
         (180.0,  86.055,  246.502,  100.392,  73.595,  213.752,  183.395,  85.483,  180.0)),
 )
 
-bin3data = ("33 m",
+bin3data = (3, "33 m",
     ( 0 , "!!", "outlier", "white      ", "out",
         (0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0)),
     ( 1 , "!!", "nothing", "white      ", "out", 
         (0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0)),
 )
 
-bin4data = ("32 p",
+bin4data = (4, "32 p",
     ( 0 , "!!", "outlier", "white      ", "out",
         (000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000)),
     ( 1 , "1b", "certain", "cyan       ", "dom", 
@@ -155,7 +196,7 @@ bin4data = ("32 p",
         (180.000, 084.457, 213.286, 069.086, 075.500, 156.671, 057.486, 147.686, 180.000)),
 )
 
-bin5data = ("32 t",
+bin5data = (5, "32 t",
     ( 0 , "!!", "outlier", "white      ", "out", 
         (000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000)),
     ( 1 , "1t", "certain", "red        ", "ord", 
@@ -164,7 +205,7 @@ bin5data = ("32 t",
         (180.000, 082.133, 204.933, 069.483, 063.417, 115.233, 176.283, 145.733, 180.000)),
 )
 
-bin6data = ("32 m",
+bin6data = (6, "32 m",
     ( 0 , "!!", "outlier", "white      ", "out", 
         (000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000)),
     ( 1 , "1o", "certain", "sky        ", "ord",
@@ -175,7 +216,7 @@ bin6data = ("32 m",
         (180.000, 083.000, 196.900, 065.350, 060.150, 138.425, 292.550, 154.275, 180.000)),
 )
 
-bin7data = ("23 p",
+bin7data = (7, "23 p",
     ( 0 , "!!", "outlier", "white      ", "out",
         (000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000)),
     ( 1 , "2a", "certain", "cyan       ", "ord",
@@ -200,7 +241,7 @@ bin7data = ("23 p",
         (180.000, 141.900, 258.383, 286.517, 178.267, 165.217, 048.350, 084.783, 180.000)),
 )
 
-bin8data = ("23 t",
+bin8data = (8, "23 t",
     ( 0 , "!!", "outlier", "white      ", "out",
         (000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000)),
     ( 1 , "2h", "certain", "sea        ", "ord",
@@ -215,14 +256,14 @@ bin8data = ("23 t",
         (180.000, 141.633, 244.100, 066.056, 071.667, 122.167, 182.200, 083.622, 180.000)),
 )
 
-bin9data = ("23 m",
+bin9data = (9, "23 m",
     ( 0 , "!!", "outlier", "white      ", "out",
         (000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000)),
     ( 1 , "0k", "wannabe", "gray       ", "ord",
         (180.000, 149.070, 249.780, 111.520, 278.370, 207.780, 287.820, 086.650, 180.000)),
 )
 
-bin10data = ("22 p",
+bin10data = (10, "22 p",
     ( 0 , "!!", "outlier", "white      ", "out",
         (000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000)),
     ( 1 , "2[", "certain", "sea        ", "ord", 
@@ -239,7 +280,7 @@ bin10data = ("22 p",
         (180.000, 142.900, 236.550, 268.800, 180.783, 185.133, 054.467, 143.350, 180.000)),
 )
 
-bin11data = ("22 t",
+bin11data = (11, "22 t",
     ( 0 , "!!", "outlier", "white      ", "out",
         (000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000)),
     ( 1 , "4s", "certain", "lime       ", "ord",
@@ -248,14 +289,14 @@ bin11data = ("22 t",
         (180.000, 143.940, 258.200, 298.240, 279.640, 183.680, 183.080, 145.120, 180.000)),
 )
 
-bin12data = ("22 m",
+bin12data = (12, "22 m",
     ( 0 , "!!", "outlier", "white      ", "out",
         (000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000)),
     ( 1 , "2o", "certain", "hotpink    ", "ord", 
         (180.000, 147.342, 256.475, 295.508, 287.408, 194.525, 293.725, 150.458, 180.000)),
 )
 
-bin13data = ("inc ",
+bin13data = (13, "inc ",
     ( 0 , "__", "incompl", "white      ", "inc",
         (000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000, 000.000)),
 )
@@ -264,21 +305,23 @@ bin13data = ("inc ",
 
 
 def buildBin(data):
-    name = data[0]
+    ordinal = data[0]
+    name = data[1]
     clusters = []
-    for item in data[1:]:
+    for item in data[2:]:
         c = suitenamedefs.Cluster(*item)
         clusters.append(c)
-    bin = Bin(name, clusters)
+    bin = Bin(ordinal, name, clusters)
     return bin
 
 
 # The bins become an associative table that maps the bin selector information
 # directly to the bin
 # selector = (puckerdm, puckerd, gammaname)
+# bins 0 and 13 are catchbasins for outliers, they are not indexed by selectors
 def buildTheBins():
     bins = {}
-    bins[()]          = buildBin(bin0data)
+    bins[0] = buildBin(bin0data)
     bins[(3, 3, 'p')] = buildBin(bin1data)
     bins[(3, 3, 't')] = buildBin(bin2data)
     bins[(3, 3, 'm')] = buildBin(bin3data)
@@ -291,5 +334,8 @@ def buildTheBins():
     bins[(2, 2, 'p')] = buildBin(bin10data)
     bins[(2, 2, 't')] = buildBin(bin11data)
     bins[(2, 2, 'm')] = buildBin(bin12data)
-    #??? should 13 even be used?
+    bins[13] = buildBin(bin13data)
     return bins
+
+
+parseCommandLine()

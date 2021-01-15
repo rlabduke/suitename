@@ -1,72 +1,93 @@
+import suiteninit
+
 import numpy as np
 from numpy import array
+from enum import Enum
 
 
+# reasons why a suite may fail to be classified:
+Issue = Enum('Issue', 'DELTA_M EPSILON_M ZETA_M ALPHA BETA GAMMA DELTA')
+reasons = {
+  Issue.DELTA_M:    "delta-1",
+  Issue.EPSILON_M:  "epsilon-1",
+  Issue.ZETA_M:     "zeta-1",
+  Issue.ALPHA:      "alpha",
+  Issue.BETA:       "beta",
+  Issue.GAMMA:      "gamma",
+  Issue.DELTA:      "delta"
+}
+
+failMessages = {
+  Issue.DELTA_M:    "bad deltam",
+  Issue.GAMMA:      "g out",
+  Issue.DELTA:      "bad delta"
+}
+
+
+# primary (coarse grained) classification of suites
 class Bin:
+    # permanence properties
     binName = ""
+    ordinal = 0
     cluster = ()
     # a tuple of cluster objects
     dominant = -1
+    # statistics gathered during the run
+    active = False
 
-    def __init__(self, name, clusters=()):
-        # ordinal is just for readability
+    def __init__(self, ordinal, name, clusters=()):
+        self.ordinal = ordinal
         self.binName = name
         self.cluster = clusters
         self.dominant = -1
+        self.active = False
 
         for i, c in enumerate(clusters):
-            if c.dominance == "dominant":
+            if c.dominance == "dom":
                 self.dominant = i
                 break
 
 
-
-# bins[1] = Bin("33 p")
-# bins[1].cluster = (
-#     Cluster("!!", "outlier", "white", "out", None, (0,0,0,0,0,0,0,0,0)),
-#         ("1a", 1, "certain", "yellowtint", "dominant", one, 
-#             (180, 081.495, 212.250, 288.831, 294.967, 173.990, 053.550, 081.035 ,180)))
-
-
+# secondary (fine grained) classification of suite
 class Cluster:
     # intrinsic data:
-    LOK = False
-    name = ""
-    status = ""    # certain, wannabe, triaged, outlier, nothing, incomplete
+    ordinal = 0       # its place in the bin
+    name = ""         # the name of the cluster
+    status = ""       # certain, wannabe, triaged, outlier, nothing, incomplete
     clusterColor = "" # kinemage color names
-    dominance = ""    # dominant, satellite, ordinary, out, tri, inc
+    dominance = ""    # dom, sat, ord, out, tri, inc
     satelliteInfo = None    # present only if this cluster is a satellite
-    angles = () 
     # tuple of 9 angles: chi-1 as 0 and chi as 8
     # the standard 7 angles are indices 1-7
+    angles = () 
+
     # gathered statistics:
+    count = 0  # number of data points found in this cluster
     suitenessSum = 0
     suitenessCounts = None
 
     def __init__(self, ordinal, name, status, color, dominance, angles):
+        self.ordinal = ordinal
         self.name = name
         self.LOK = (name != "!!")
         self.status = status
         self.clusterColor = color
         self.dominance = dominance  
-        self.angles = angles
+        self.angle = array(angles)
         if self.dominance == "sat":
-            self.satelliteInfo = satelliteData[name]
+            self.satelliteInfo = suiteninit.getSatelliteInfo(name)
         else:
             self.satelliteInfo = None
-        self.suitenessCounts = np.zeros(12)
+        self.suitenessCounts = np.zeros(11)
         self.suitenessSum = 0
 
 
 class SatelliteInfo:
     # numbers used when suite is between satellite and dominant centers
     name = ""
-    satelliteWidths = ()
-    # vector of 9 angles
-    dominantWidths = ()
-    # vector of 9 angles
-    doma = ""
-    # dominant name-for bookkeeping
+    satelliteWidths = ()   # vector of 9 angles
+    dominantWidths = ()    # vector of 9 angles
+    doma = ""    # dominant name-for bookkeeping
     
     def __init__(self, name, doma, satelliteWidths, dominantWidths):
         self.name = name
@@ -79,24 +100,40 @@ class SatelliteInfo:
 class Residue:
     pointIDs = []
     base = " "    # A, C, G, U, ...
+    # The 6 angles:
     alpha = 0
     beta = 0
     gamma = 0
     delta = 0
     epsilon = 0
     zeta = 0
-
-    angle = np.empty(0) 
-
+    chi = 0
+    angle = np.full(7, 0.0)
 
     def __init__(self, ID, base, angles):
         self.pointIDs = ID
         self.base = base
         self.angle = angles
+        self.unpackAngles()
+
+    def unpackAngles(self):
+        self.alpha = self.angle[0]
+        self.beta = self.angle[1]
+        self.gamma = self.angle[2]
+        self.delta = self.angle[3]
+        self.epsilon = self.angle[4]
+        self.zeta = self.angle[5]
+        # for the future:
+        # we can accept chi as a seventh angle if provided
+        if len(self.angle) > 6:
+            self.chi = self.angle[6]
+        else:
+            self.chi = 180
+    
 
 # Suite: the set of angles forming the linkage BETWEEN residues
 class Suite:
-    pointId = ""
+    pointId = ()
     base = " "    # A, C, G, U, ...
     chiMinus = 0
     deltaMinus = 0
@@ -107,19 +144,28 @@ class Suite:
     gamma = 0
     delta = 0
     chi = 0
-    angle = np.empty(0) 
     # dual representation: individual angles are named for clarity
     # array is for convenience of computation
+    angle = np.full(9, 0.0) 
+
+
     def __init__(self, ID, base, angles=None):
         self.pointId = ID
         self.base = base
         self.angle = angles
-        if angles:
-            unpackAngles(self)
+        if angles is not None:
+            self.unpackAngles()
+
+    def validate(self):
+        # make sure that angles deltaMinus through delta are reasonable
+        for i in range(1, 8):
+            if self.angle[i] < 0 or self.angle[i] > 360:
+                return False
+        return True
 
     def gatherAngles(self):
-        self.angle = array(self.chiMinus, self.deltaMinus, self.epsilon, self.zeta, 
-            self.alpha, self.beta, self.gamma, self.delta, self.chi)
+        self.angle = array((self.chiMinus, self.deltaMinus, self.epsilon, self.zeta, 
+            self.alpha, self.beta, self.gamma, self.delta, self.chi))
 
     def unpackAngles(self):
         self.chiMinus = self.angle[0]
@@ -130,7 +176,7 @@ class Suite:
         self.beta = self.angle[5]
         self.gamma = self.angle[6]
         self.delta = self.angle[7]
-        self.k = self.angle[8]
+        self.chi = self.angle[8]
 
 
 

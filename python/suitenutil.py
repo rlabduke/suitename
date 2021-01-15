@@ -1,6 +1,11 @@
+# This file is no longer in use, until further notice
 
 
-def hyperEllipsoidDistance(suiteAngles, clusterAngles, nAngles, widthArray, power):
+# This variable has been experimental but we have settled on 3
+power = 3
+
+
+def hyperEllipsoidDistance(suiteAngles, clusterAngles, nAngles, widthArray):
     if nAngles == 4: workRange = range(2,6)
     else:            workRange = range(1,8)
 
@@ -14,7 +19,7 @@ def hyperEllipsoidDistance(suiteAngles, clusterAngles, nAngles, widthArray, powe
     return result
 
 
-def hyperEllipsoidDistance2(suiteAngles, clusterAngles, nAngles, widthArray, power):
+def hyperEllipsoidDistance2(suiteAngles, clusterAngles, nAngles, widthArray):
     if nAngles == 4: workRange = range(2,6)
     else:            workRange = range(1,8)
 
