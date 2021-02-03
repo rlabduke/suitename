@@ -27,17 +27,18 @@ failMessages = {
 # primary (coarse grained) classification of suites
 class Bin:
     # permanence properties
-    binName = ""
+    name = ""
     ordinal = 0
     cluster = ()
     # a tuple of cluster objects
     dominant = -1
     # statistics gathered during the run
+    count = 0
     active = False
 
     def __init__(self, ordinal, name, clusters=()):
         self.ordinal = ordinal
-        self.binName = name
+        self.name = name
         self.cluster = clusters
         self.dominant = -1
         self.active = False
@@ -57,9 +58,10 @@ class Cluster:
     clusterColor = "" # kinemage color names
     dominance = ""    # dom, sat, ord, out, tri, inc
     satelliteInfo = None    # present only if this cluster is a satellite
+  
     # tuple of 9 angles: chi-1 as 0 and chi as 8
-    # the standard 7 angles are indices 1-7
-    angles = () 
+    # the standard 7 angles are indices 1-7:
+    angle = () 
 
     # gathered statistics:
     count = 0  # number of data points found in this cluster
@@ -78,7 +80,7 @@ class Cluster:
             self.satelliteInfo = suiteninit.getSatelliteInfo(name)
         else:
             self.satelliteInfo = None
-        self.suitenessCounts = np.zeros(11)
+        self.suitenessCounts = np.zeros(12)
         self.suitenessSum = 0
 
 
@@ -98,6 +100,10 @@ class SatelliteInfo:
 
 # Residue: a raw residue as normally represented
 class Residue:
+    '''
+    A residue as normally read in.
+    Used only briefly as input.
+    '''
     pointIDs = []
     base = " "    # A, C, G, U, ...
     # The 6 angles:
@@ -128,14 +134,20 @@ class Residue:
         if len(self.angle) > 6:
             self.chi = self.angle[6]
         else:
-            self.chi = 180
+            self.chi = -431602080.00  #180
+            # A preposterous compromise with the past for now
+            #self.chi = -180
     
 
-# Suite: the set of angles forming the linkage BETWEEN residues
+# Suite: the 
 class Suite:
-    pointId = ()
+    '''
+    The set of angles forming the linkage BETWEEN residues.
+    This is the core data structure used in most operations of the program.
+    '''    
+    pointID = ()
     base = " "    # A, C, G, U, ...
-    chiMinus = 0
+    #chiMinus = 0
     deltaMinus = 0
     epsilon = 0
     zeta = 0
@@ -148,13 +160,32 @@ class Suite:
     # array is for convenience of computation
     angle = np.full(9, 0.0) 
 
+    @property
+    def chiMinus(self):
+        return self.angle[0]
+
+    @chiMinus.setter
+    def chiMinus(self, value):
+        self.angle[0] = value
+
+    # fields computed during analysis:
+    cluster = None  # The cluster to which it is assigned
+    suiteness = 0.0
+    distance = 0.0
+    notes = ""
+    pointMaster = ""
+    pointColor = ""
 
     def __init__(self, ID, base, angles=None):
-        self.pointId = ID
+        self.pointID = ID
         self.base = base
-        self.angle = angles
         if angles is not None:
-            self.unpackAngles()
+          self.angle = angles
+          self.unpackAngles()
+        self.cluster = None
+        self.suiteness = 0.0
+        self.distance = 0.0
+        self.notes = ""
 
     def validate(self):
         # make sure that angles deltaMinus through delta are reasonable

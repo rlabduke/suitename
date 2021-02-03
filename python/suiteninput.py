@@ -2,9 +2,9 @@ from suitenamedefs import Suite, Residue
 from suiteninit import args
 
 import numpy as np
-import math
+import math, sys
 
-ALTIDFIELD = 4  # where to find codes for alternatives
+ALTIDFIELD = args.altIDfield  # where to find codes for alternatives
 
 # The great variety of codes that may represent each base in the input file
 NAListA = ":ADE:  A:A  : Ar:ATP:ADP:AMP:T6A:1MA:RIA:  I:I  :"
@@ -20,12 +20,12 @@ def findBase(baseCode):
   if len(baseCode) != 3:
         return 'Z'
     
-  if NAListA.find(baseCode):   base='A'
-  elif NAListG.find(baseCode): base='G'
-  elif NAListC.find(baseCode): base='C'
-  elif NAListU.find(baseCode): base='U'
-  elif NAListT.find(baseCode): base='T'
-  elif IgnoreDNAList.find(baseCode):
+  if NAListA.find(baseCode) >= 0:   base='A'
+  elif NAListG.find(baseCode) >= 0: base='G'
+  elif NAListC.find(baseCode) >= 0: base='C'
+  elif NAListU.find(baseCode) >= 0: base='U'
+  elif NAListT.find(baseCode) >= 0: base='T'
+  elif IgnoreDNAList.find(baseCode) >= 0:
     return None  # we ignore DNA residues
   else:  
     base='Y'
@@ -50,10 +50,11 @@ def readResidues(inFile):
     ids = fields[:args.pointIDfields]
     baseCode = fields[args.pointIDfields-1]
     angleStrings = fields[args.pointIDfields:]
-    if ids[ALTIDFIELD][0] != " " and ids[ALTIDFIELD] != args.altID:
+    if ids[ALTIDFIELD].strip() != "" and ids[ALTIDFIELD] != args.altID:
       continue  # lines for the wrong alternative conformation are ignored
 
     base = findBase(baseCode)
+#!    sys.stderr.write(f"base {baseCode} result :{base}:\n")
     if not base:    # ignore DNA bases
       continue
     angles = np.array([stringToFloat(s) for s in angleStrings])
@@ -64,6 +65,45 @@ def readResidues(inFile):
     residue = Residue(ids, base, angles)
     residues.append(residue)
   return residues
+
+
+def readKinemageSuites(inFile):
+  lines = inFile.readlines()
+  suites = []
+  for line in lines:
+    if len(line.strip()) == 0 or line[0] == '#':  # blank or comment line
+      continue
+    # A meaningful line begins with an id string enclosed in braces
+    if line[0] == '{':
+      mark = line.find('}')
+      if mark > 0:
+        idString = line[1:mark]
+        ids = idString.split(':')
+
+        # there may be some miscellaneous markers after the id string
+        k = mark + 1
+        while k < len(line) and not line[k].isdigit():
+          k = k + 1
+        mark2 = k
+
+        # once we see a number, everything else is angles
+        angleText = line[mark2:]
+        angleStrings = angleText.split(' ')
+        angleStrings2 = angleText.split(',')
+        if len(angleStrings2) > len(angleStrings):
+          angleStrings = angleStrings2
+        angleList = [stringToFloat(s) for s in angleStrings]
+        if args.anglefields == 9:
+            angles = np.array(angleList)
+        else:  # given only 7 angles,skipping the chi angles on the ends
+            angles = np.array([180.0] + angleList + [180.0])
+        for i in range(len(angles)):
+          if angles[i] < 0:
+            angles[i] += 360.0
+            
+        suite = Suite(ids, 'X', angles)
+        suites.append(suite)
+  return suites
 
 
 def buildSuiteBetweenResidues(r1, r2):

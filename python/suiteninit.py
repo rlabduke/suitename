@@ -4,6 +4,13 @@ from suitenamedefs import Bin, Cluster, SatelliteInfo
 from numpy import array
 import argparse
 
+# suiteninit.py:
+# This is a self initializing module that embodies the data around which
+# this program is built. It exports to primary data structures:
+#   args    the command line arguments, stored in a Namespace
+#   bins    the bin and cluster definitions
+
+
 MAX_CLUSTERS = 16  # practical, observed limit of clusters in a bin
 args = {}
 
@@ -13,33 +20,38 @@ def parseCommandLine():
   global args
 
   parser = argparse.ArgumentParser()
+  # the input file may be given as an argument or as a redirect
   parser.add_argument('infile', nargs='?', default="")
 
   # input styles
-  parser.add_argument("--residuein")
-  parser.add_argument("--residuesin")
-  parser.add_argument("--suitein")
-  parser.add_argument("--suitesin")
+  parser.add_argument("--residuein", "-residuein", action="store_true")
+  parser.add_argument("--residuesin", "-residuesin", action="store_true")
+  parser.add_argument("--suitein", "-suitein", action="store_true")
+  parser.add_argument("--suitesin", "-suitesin", action="store_true")
   
-  # output styles
+  # output styles (default is --report)
   outputStyle = parser.add_mutually_exclusive_group()
-  outputStyle.add_argument("--report")  # the default format
-  outputStyle.add_argument("--string")
-  outputStyle.add_argument("--kinemage")
-  parser.add_argument("--chart")     # a modifier to report
+  outputStyle.add_argument("--report", "-report", action="store_true")
+  outputStyle.add_argument("--string", "-string", action="store_true")
+  outputStyle.add_argument("--kinemage", "-kinemage", action="store_true")
+  parser.add_argument("--chart", action="store_true")     # a modifier to report
   
   # additional options
-  parser.add_argument("--satellites")
-  parser.add_argument("--wannabes")
-  parser.add_argument("--nosequence")
-  parser.add_argument("--etatheta")
+  parser.add_argument("--satellites", "-satellites", action="store_true")
+  parser.add_argument("--nowannabe", "-nowannabe", action="store_true")
+  parser.add_argument("--nosequence", "-nosequence", action="store_true")
+  parser.add_argument("--thetaeta", "-thetaeta", action="store_true")
+  parser.add_argument("--etatheta", "-etatheta", action="store_true")
+  parser.add_argument("--test", "-test", action="store_true")
 
   # numerical options
-  parser.add_argument("--pointIDfields", type=int, default=6)
+  parser.add_argument("--pointIDfields", "-pointIDfields", type=int, default=6)
+  parser.add_argument("--anglefields", "-anglefields", type=int, default=9)
   parser.add_argument("--ptID", type=int, default=0)
-  parser.add_argument("--altID", type=str, default="A")
-  # the following is deprecated:
-  parser.add_argument("--altIDField", type=int, default=4)
+  parser.add_argument("--altID", "-altID", type=str, default="A")
+  parser.add_argument("--altIDfield", "-altIDfield", type=int, default=4)
+
+  # the following are deprecated:
   parser.add_argument("--angles", type=int, default=9)
   parser.add_argument("--resAngles", type=int, default=6)
 
@@ -334,8 +346,25 @@ def buildTheBins():
     bins[(2, 2, 'p')] = buildBin(bin10data)
     bins[(2, 2, 't')] = buildBin(bin11data)
     bins[(2, 2, 'm')] = buildBin(bin12data)
-    bins[13] = buildBin(bin13data)
+    bins[13] = buildBin(bin13data) 
+
+    # build aliases so that bins can be indexed by number during output
+    bins[1] = bins[(3, 3, 'p')]
+    bins[2] = bins[(3, 3, 't')]
+    bins[3] = bins[(3, 3, 'm')]
+    bins[4] = bins[(3, 2, 'p')]
+    bins[5] = bins[(3, 2, 't')]
+    bins[6] = bins[(3, 2, 'm')]
+    bins[7] = bins[(2, 3, 'p')]
+    bins[8] = bins[(2, 3, 't')]
+    bins[9] = bins[(2, 3, 'm')]
+    bins[10] = bins[(2, 2, 'p')]
+    bins[11] = bins[(2, 2, 't')]
+    bins[12] = bins[(2, 2, 'm')]
     return bins
 
 
 parseCommandLine()
+buildSatelliteTable()
+bins = buildTheBins()
+
