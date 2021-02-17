@@ -49,6 +49,7 @@ def parseCommandLine():
   parser.add_argument("--anglefields", "-anglefields", type=int, default=9)
   parser.add_argument("--ptID", type=int, default=0)
   parser.add_argument("--altID", "-altID", type=str, default="A")
+  parser.add_argument("--altIDval", "-altIDval", type=str, default="A")
   parser.add_argument("--altIDfield", "-altIDfield", type=int, default=4)
 
   # the following are deprecated:
@@ -84,16 +85,24 @@ def buildSatelliteTable():
         name = item[0]
         satWidths = item[1]
         domWidths = item[2]
-        dominant = item[3]
-        satelliteTable[name] = SatelliteInfo(name, dominant, satWidths, domWidths)
+        satelliteTable[name] = SatelliteInfo(name, satWidths, domWidths)
 
 
 # The satellite data:
 # The widths below are used to determine multidimensional hyperellipsoidal distances.
 # A distance <= 1  is considered "in" the cluster
+
+# There are three tiers of widths here:
+# 1. The normal widths, deltamw etc.
+# 2. The general satellite widths, epsilonsatw etc.
+# 3. The special satellite widths in the table farther below, satelliteData
 # The normalWidths are used for a typical cluster.
 # The satelliteWidths are an exception, used for satellite clusters.
-# The satelliteData are exceptions to the satelliteWidths, for certain specific satellite clusters.
+# The satelliteData are exceptions to the satelliteWidths, for certain specific
+# satellite clusters.
+
+# SITUATION as of 210213:
+#   The satelliteWidths are used ONLY if the --satellites arg is used
 
 clusterhalfwidthsversion = "070328"
 deltamw  = 28
@@ -108,21 +117,27 @@ deltaw   = 28
 # width arrays set the widths of clusters in the various dimensions
 # the zeroes on either end may someday be replaced with widths for the
 # chi angles
-normalWidths =    array((0, deltamw, epsilonw, zetaw, alphaw, betaw, gammaw, deltaw, 0))
-satelliteWidths = array((0, deltamw, epsilonsatw, zetasatw, alphasatw, betasatw, gammaw, deltaw, 0))
+normalWidths =    array((0, deltamw, epsilonw, zetaw, alphaw, betaw, gammaw, 
+                          deltaw, 0))
+satelliteWidths = array((0, deltamw, epsilonsatw, zetasatw, alphasatw, 
+                          betasatw, gammaw, deltaw, 0))
 
 satelliteData = (
-  #  sat         9 angles sat widths                    9 angles dom width              dom
-    ("1m", ( 0,  0,  0,  0,  0, 32,  0,  0,  0), ( 0,  0,  0,  0,  0, 64,  0,  0,  0), "1a"),
-    ("1L", ( 0,  0, 18,  0,  0, 18,  0,  0,  0), ( 0,  0, 70,  0,  0, 70,  0,  0,  0), "1a"),
-    ("&a", ( 0,  0, 20, 20,  0,  0,  0,  0,  0), ( 0,  0, 60, 60,  0,  0,  0,  0,  0), "1a"),
-    ("1f", ( 0,  0,  0,  0,  0, 47,  0,  0,  0), ( 0,  0,  0,  0,  0, 65,  0,  0,  0), "1a"),
-    ("1[", ( 0,  0,  0,  0,  0, 34,  0,  0,  0), ( 0,  0,  0,  0,  0, 56,  0,  0,  0), "1a"),
-    ("4a", ( 0,  0, 40, 40,  0,  0,  0,  0,  0), ( 0,  0, 50, 50,  0,  0,  0,  0,  0), "1a"),
-    ("#a", ( 0,  0, 26, 26,  0,  0,  0,  0,  0), ( 0,  0, 36, 36,  0,  0,  0,  0,  0), "1a"),
-    ("0i", ( 0,  0,  0,  0,  0, 60,  0,  0,  0), ( 0,  0,  0,  0,  0, 60,  0,  0,  0), "1a"),
-    ("6j", ( 0,  0,  0,  0,  0, 60,  0,  0,  0), ( 0,  0,  0,  0,  0, 60,  0,  0,  0), "1a")
+  #  sat         9 angles sat widths                    9 angles dom width
+    ("1m", ( 0,  0,  0,  0,  0, 32,  0,  0,  0), ( 0,  0,  0,  0,  0, 64,  0,  0,  0)),
+    ("1L", ( 0,  0, 18,  0,  0, 18,  0,  0,  0), ( 0,  0, 70,  0,  0, 70,  0,  0,  0)),
+    ("&a", ( 0,  0, 20, 20,  0,  0,  0,  0,  0), ( 0,  0, 60, 60,  0,  0,  0,  0,  0)),
+    ("1f", ( 0,  0,  0,  0,  0, 47,  0,  0,  0), ( 0,  0,  0,  0,  0, 65,  0,  0,  0)),
+    ("1[", ( 0,  0,  0,  0,  0, 34,  0,  0,  0), ( 0,  0,  0,  0,  0, 56,  0,  0,  0)),
+    ("4a", ( 0,  0, 40, 40,  0,  0,  0,  0,  0), ( 0,  0, 50, 50,  0,  0,  0,  0,  0)),
+    ("#a", ( 0,  0, 26, 26,  0,  0,  0,  0,  0), ( 0,  0, 36, 36,  0,  0,  0,  0,  0)),
+    ("0i", ( 0,  0,  0,  0,  0, 60,  0,  0,  0), ( 0,  0,  0,  0,  0, 60,  0,  0,  0)),
+    ("6j", ( 0,  0,  0,  0,  0, 60,  0,  0,  0), ( 0,  0,  0,  0,  0, 60,  0,  0,  0))
 )
+# note on the satelliteData:
+# The satellite cluster is stated. The dominant cluster can be found by looking
+# in the bin containing the satellite cluster, it will be the cluster with a
+# dominance of "dom"
 
 
 def getSatelliteInfo(name):

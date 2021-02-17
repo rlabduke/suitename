@@ -89,11 +89,9 @@ class SatelliteInfo:
     name = ""
     satelliteWidths = ()   # vector of 9 angles
     dominantWidths = ()    # vector of 9 angles
-    doma = ""    # dominant name-for bookkeeping
     
-    def __init__(self, name, doma, satelliteWidths, dominantWidths):
+    def __init__(self, name, satelliteWidths, dominantWidths):
         self.name = name
-        self.doma = doma
         self.satelliteWidths = satelliteWidths
         self.dominantWidths = dominantWidths
 

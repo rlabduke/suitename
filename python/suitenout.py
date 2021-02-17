@@ -36,7 +36,7 @@ def writeFinalOutput(suites, outNote):
     elif args.kinemage:
         kinemageFinal(suites, outNote)
     else:
-        reportFinal()
+        reportFinal(outNote)
 
 
 def string1Suite(suite, cluster):
@@ -90,7 +90,9 @@ def report1Suite(
         cluster.suitenessCounts[bucket] += 1
 
 
-def reportFinal():
+def reportFinal(outNote):
+#@deleteLine:
+    outFile.write(outNote.comment + "\n")
     if not args.chart:
         suitenessAverage(0)
     if bins[1].cluster[1].count > 0:  # Aform 1a    070325
@@ -162,7 +164,8 @@ def suitenessAverage(mode):
         average = 0
 
     outFile.write(
-        "{} {} suites: average suiteness == {:5.3f}\n".format(
+#@        "{} {} suites: average suiteness == {:5.3f}\n".format(
+        "{} {} suites: average suiteness== {:5.3f} (power==3.00)\n".format(
             comment, allCount, average
         )
     )
@@ -371,6 +374,7 @@ def binOut(bin, suites):
         ).format(bin.name, cluster.name, cluster.clusterColor)
         outFile.write(ballList)
         outPoints(bin, cluster, suites, "'O' white")
+#@        outPoints(bin, cluster, suites, "")
 
 
 def outPoints(bin, cluster, suites, extra1):

@@ -50,7 +50,7 @@ def readResidues(inFile):
     ids = fields[:args.pointIDfields]
     baseCode = fields[args.pointIDfields-1]
     angleStrings = fields[args.pointIDfields:]
-    if ids[ALTIDFIELD].strip() != "" and ids[ALTIDFIELD] != args.altID:
+    if ids[ALTIDFIELD].strip() != "" and ids[ALTIDFIELD] != args.altIDval:
       continue  # lines for the wrong alternative conformation are ignored
 
     base = findBase(baseCode)
@@ -67,8 +67,38 @@ def readResidues(inFile):
   return residues
 
 
-def readKinemageSuites(inFile):
+def readKinemageFile(inFile):
+  """
+  We glean the following information from a kinemage file:
+  The @dimension command gives us the number of dimensions in the data
+  Anything between a @balllist command and a subsequent @ command
+  is a data line.
+  """  
   lines = inFile.readlines()
+  goodLines = []
+  place, line = findPrefixInList(lines, "@dimension")
+  if place > 0:
+      items = line.split()
+      dimension = len(items) - 1
+  else:
+      dimension = 7  # make a default assumption
+      place = 0
+  while place >= 0:
+      begin, line = findPrefixInList(lines, "@balllist", place)
+      if begin > 0:
+          end, line = findPrefixInList(lines, "@", begin+1)
+          place = end
+          if end < 0: end = len(lines)
+          goodLines += lines[begin + 1 : end]
+      else:
+          break
+  if len(goodLines) == 0:
+      goodLines = lines  # assume a pure data file
+  return readKinemageSuites(goodLines, dimension)
+
+
+def readKinemageSuites(lines, dimension):
+  """Read a list of kinemage data lines to yield a suite."""
   suites = []
   for line in lines:
     if len(line.strip()) == 0 or line[0] == '#':  # blank or comment line
@@ -104,6 +134,13 @@ def readKinemageSuites(inFile):
         suite = Suite(ids, 'X', angles)
         suites.append(suite)
   return suites
+
+
+def findPrefixInList(list, prefix, start=0):
+    for i, s in enumerate(list[start:]):
+        if s.startswith(prefix):
+            return i + start, s
+    return -1, None
 
 
 def buildSuiteBetweenResidues(r1, r2):

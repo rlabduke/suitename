@@ -2,7 +2,7 @@ import suiteninit, suitenout
 from suitenamedefs import Suite, Residue, Bin, Cluster, Issue, failMessages
 from suiteninit import args, bins, MAX_CLUSTERS
 from suiteninit import normalWidths, satelliteWidths
-from suiteninput import readResidues, readKinemageSuites, buildSuites
+from suiteninput import readResidues, readKinemageFile, buildSuites
 from suitenutil import hyperEllipsoidDistance
 
 import sys, os
@@ -33,6 +33,8 @@ from math import cos, pi
 
 
 version = "suitename.0.6.012521"
+dbCounter = 0
+dbTarget = 10000  # triggers extra output on this suite
 
 # A collection of variables used for output
 class OutNote:
@@ -47,6 +49,7 @@ outNote.outliers = 0
 
 # ***main()******************************************************************
 def main():
+    global dbCounter
     if args.infile != "":
         inFile = open(args.infile)
     elif sys.gettrace() is not None:
@@ -59,7 +62,7 @@ def main():
     distance = 0
 
     if args.suitein or args.suitesin:
-        suites = readKinemageSuites(inFile)
+        suites = readKinemageFile(inFile)
         pass
     else:
         residues = readResidues(inFile)
@@ -89,15 +92,15 @@ def main():
             memberPack = membership(bin, s)
             (cluster, distance, suiteness, notes, comment,
                 pointMaster, pointColor) = memberPack
-            suitenout.write1Suite(                s,                bin,
-                cluster,                distance,                suiteness,
-                notes,                issue,                comment,
-                pointMaster,                pointColor            )
+            suitenout.write1Suite(
+                s, bin, cluster, distance, suiteness, notes, issue, comment, 
+                pointMaster, pointColor)
             s.suiteness = suiteness
             s.distance = distance
             s.notes = notes
         s.pointMaster = pointMaster
         s.pointColor = pointColor
+        dbCounter += 1
     finalStats()
     suitenout.writeFinalOutput(suites, outNote)
 
@@ -127,14 +130,25 @@ zetamax = 335
 # triage table for yes-no angles:
 # each of these filters, applied to a suite, will provide a
 # true or false answer as to whether this angle is in a reasonable range.
+# pointMaster is for grouping points in kinemage display
 
-# data per line: angle index, min, max, code, text
-triageFilters = (
-    (2, epsilonmin, epsilonmax, Issue.EPSILON_M, "e out", "E"),
-    (4, alphamin, alphamax, Issue.ALPHA, " a out", "T"),
-    (5, betamin, betamax, Issue.BETA, " b out", "T"),
-    (3, zetamin, zetamax, Issue.ZETA_M, " z out", "T"),
-)
+# data per line: angle index, min, max, code, text, pointMaster
+triageFilters = {
+    "epsilon": (2, epsilonmin, epsilonmax, Issue.EPSILON_M, "e out", "E"),
+    "alpha":   (4, alphamin, alphamax, Issue.ALPHA, " a out", "T"),
+    "beta":    (5, betamin, betamax, Issue.BETA, " b out", "T"),
+    "zeta":    (3, zetamin, zetamax, Issue.ZETA_M, " z out", "T"),
+}
+
+def triage(selector, suite):
+    # if angle lies outside the acceptable range, triage immediately
+    filter = triageFilters[selector]
+    index, min, max, failCode, failText, pointMaster = filter
+    if suite.angle[index] < min or suite.angle[index] > max:
+        return False, failCode, failText, pointMaster
+    else:
+        return True, None, None, ""
+
 
 # The more complex angles are handled by a "sieve".
 # A sieve will determine whether an angle is within one of several ranges
@@ -164,15 +178,13 @@ def sift(sieve, angle, failCode):
 def evaluateSuite(suite):
     global bins
 
-    # first, the simple angles:
-    # if angle lies outside the acceptable range, triage immediately
-    for filter in triageFilters:
-        index, min, max, failCode, failText, pointMaster = filter
-        if suite.angle[index] < min or suite.angle[index] > max:
-            notes = failText
-            return None, failCode, failText, pointMaster
+    # The order of tree azure operations, though it may seem arbitrary,
+    # was carefully chosen by the scientists.
+    ok, failCode, notes, pointMaster = triage("epsilon", suite)
+    if not ok:
+        return None, failCode, notes, pointMaster
 
-    # then, the angles with several meaningful ranges:
+    # Angles with several meaningful ranges:
     # for each angle, find out which range it lies in, or none
     # this becomes a selector to help choose a bin
     puckerdm, failCode, notes = sift(sieveDelta, suite.deltaMinus, Issue.DELTA_M)
@@ -186,6 +198,18 @@ def evaluateSuite(suite):
     gammaname, failCode, notes = sift(sieveGamma, suite.gamma, Issue.GAMMA)
     if not gammaname:
         return None, failCode, notes, "T"
+
+    ok, failCode, notes, pointMaster = triage("alpha", suite)
+    if not ok:
+        return None, failCode, notes, pointMaster
+
+    ok, failCode, notes, pointMaster = triage("beta", suite)
+    if not ok:
+        return None, failCode, notes, pointMaster
+
+    ok, failCode, notes, pointMaster = triage("zeta", suite)
+    if not ok:
+        return None, failCode, notes, pointMaster
 
     # use this information to select a bin
     bin = bins[(puckerdm, puckerd, gammaname)]
@@ -269,11 +293,14 @@ def membership(bin, suite):
         outNote.outliers += 1
         pointMaster = "O"
         pointColor = "white"
-    if theCluster.status == "wannabe":
-        outNote.wannabes += 1
 
     # final computation of suiteness
     # this time we use all 7 dimensions
+    if dbCounter >= dbTarget and dbCounter <= dbTarget + 1:  # KPB debug
+        print(suite.pointID)
+        print(suite.angle)
+        print(theCluster.name)
+      
     distance = hyperEllipsoidDistance(suite.angle, theCluster.angle, 7, normalWidths)
     # this calculation can assign or deassign a cluster
     if distance <= 1:
@@ -286,11 +313,15 @@ def membership(bin, suite):
             # so we deassign it here
             closestJ = 0
             comment = f"7D dist {theCluster.name}"
+            if theCluster.status == "wannabe":
+                comment += " wannabe"
         theCluster = bin.cluster[0]  # outlier
         suiteness = 0
 
     theCluster.count += 1
     suite.cluster = theCluster
+    if theCluster.status == "wannabe" and not args.nowannabe:
+        outNote.wannabes = 1  # once set, stays set
     pointColor = 0  # will be handled later!!
     if args.test:
         print(" [suite: %s %s 4Ddist== %f, 7Ddist== %f, suiteness==%f] \n" % \
@@ -317,13 +348,13 @@ def domSatDistinction(suite, domCluster, satCluster, matches, matchCount):
     dps = narrowDotProduct(domToPoint, domToSat, 4)
     spd = narrowDotProduct(satToPoint, satToDom, 4)
 
-    if (
-        narrowDotProduct(domToPoint, domToSat, 4) > 0
-        and narrowDotProduct(satToPoint, satToDom, 4) > 0
-    ):
+    if dps > 0 and spd > 0:
         # the trickiest case: point is between dom and sat
         domWidths = normalWidths.copy()
-        satWidths = satelliteWidths.copy()
+        if args.satellites:
+            satWidths = satelliteWidths.copy()
+        else:
+            satWidths = normalWidths.copy()
         if satCluster.satelliteInfo is not None:
             modifyWidths(domWidths, satWidths, satCluster.satelliteInfo)
         disttodom = hyperEllipsoidDistance(suite.angle, domCluster.angle, 4, domWidths)
@@ -349,7 +380,6 @@ def domSatDistinction(suite, domCluster, satCluster, matches, matchCount):
 
 def finalStats():
     for bin in bins.values():
-        # bin = bins[key]
         for c in bin.cluster:
             bin.count += c.count
 
@@ -359,8 +389,8 @@ def finalStats():
 # This variable was experimental but we have settled on 3:
 power = 3
 
-
 def hyperEllipsoidDistance(suiteAngles, clusterAngles, nAngles, widthArray):
+    global dbCounter
     if nAngles == 4:
         workRange = range(2, 6)
     else:
@@ -372,7 +402,12 @@ def hyperEllipsoidDistance(suiteAngles, clusterAngles, nAngles, widthArray):
         delta = delta / widthArray[k]
         delToPower = pow(delta, power)
         summation = summation + delToPower
+        if dbCounter >= dbTarget and nAngles > 4:  # KPB debug 120221
+            sys.stderr.write("db=%3d, k=%d, del=%8.4f, delpower=%10.6f, dpower=%10.6f\n" % 
+                        (dbCounter, k, delta, delToPower, summation) )
     result = pow(summation, 1 / power)
+    if dbCounter == dbTarget and nAngles > 4:
+        sys.stderr.write("final = %7.3f\n" % result)
     return result
 
 
