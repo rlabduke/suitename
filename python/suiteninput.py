@@ -4,7 +4,7 @@ from suiteninit import args
 import numpy as np
 import math, sys
 
-ALTIDFIELD = args.altIDfield  # where to find codes for alternatives
+altidfield = args.altidfield  # where to find codes for alternatives
 
 # The great variety of codes that may represent each base in the input file
 NAListA = ":ADE:  A:A  : Ar:ATP:ADP:AMP:T6A:1MA:RIA:  I:I  :"
@@ -47,10 +47,10 @@ def readResidues(inFile):
     if len(line.strip()) == 0 or line[0] == '#':  # blank or comment line
       continue
     fields = line.split(':')
-    ids = fields[:args.pointIDfields]
-    baseCode = fields[args.pointIDfields-1]
-    angleStrings = fields[args.pointIDfields:]
-    if ids[ALTIDFIELD].strip() != "" and ids[ALTIDFIELD] != args.altIDval:
+    ids = fields[:args.pointidfields]
+    baseCode = fields[args.pointidfields-1]
+    angleStrings = fields[args.pointidfields:]
+    if ids[altidfield].strip() != "" and ids[altidfield] != args.altidval:
       continue  # lines for the wrong alternative conformation are ignored
 
     base = findBase(baseCode)
@@ -81,10 +81,10 @@ def readKinemageFile(inFile):
       items = line.split()
       dimension = len(items) - 1
   else:
-      dimension = 7  # make a default assumption
+      dimension = args.anglefields
       place = 0
   while place >= 0:
-      begin, line = findPrefixInList(lines, "@balllist", place)
+      begin, line = findPrefixesInList(lines, "@balllist", "@dotlist", place)
       if begin > 0:
           end, line = findPrefixInList(lines, "@", begin+1)
           place = end
@@ -123,7 +123,7 @@ def readKinemageSuites(lines, dimension):
         if len(angleStrings2) > len(angleStrings):
           angleStrings = angleStrings2
         angleList = [stringToFloat(s) for s in angleStrings]
-        if args.anglefields == 9:
+        if dimension == 9:
             angles = np.array(angleList)
         else:  # given only 7 angles,skipping the chi angles on the ends
             angles = np.array([180.0] + angleList + [180.0])
@@ -139,6 +139,12 @@ def readKinemageSuites(lines, dimension):
 def findPrefixInList(list, prefix, start=0):
     for i, s in enumerate(list[start:]):
         if s.startswith(prefix):
+            return i + start, s
+    return -1, None
+
+def findPrefixesInList(list, prefix1, prefix2, start=0):
+    for i, s in enumerate(list[start:]):
+        if s.startswith(prefix1) or s.startswith(prefix2):
             return i + start, s
     return -1, None
 
@@ -201,5 +207,3 @@ def buildSuites(residues):
 # A kinemage format, not yet supported
 def readSuites():
   pass
-
-

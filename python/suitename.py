@@ -103,6 +103,10 @@ def main():
         dbCounter += 1
     finalStats()
     suitenout.writeFinalOutput(suites, outNote)
+    if len(suites) > 0:
+        pass  # exit normally
+    else:
+        sys.exit(1)
 
 
 # *** evaluateSuite and its tools ***************************************
@@ -178,7 +182,7 @@ def sift(sieve, angle, failCode):
 def evaluateSuite(suite):
     global bins
 
-    # The order of tree azure operations, though it may seem arbitrary,
+    # The order of triage operations, though it may seem arbitrary,
     # was carefully chosen by the scientists.
     ok, failCode, notes, pointMaster = triage("epsilon", suite)
     if not ok:
@@ -427,5 +431,61 @@ def modifyWidths(dom, sat, satInfo):
         if satInfo.dominantWidths[m] > 0:
             dom[m] = satInfo.dominantWidths[m]
 
+
+def showHelpText():
+    sys.stderr.write(
+        f"""
+Version {version}
+suitename -flags <stdin >stdout
+  or
+suitename inputfile -flags >stdout
+output flags: [ -report || -string || -kinemage ]
+default:  -report
+
+input flags: [ -residuein || -suitein  ]
+flags: [ -residuein [ -pointIDfields # ] ] default#=={args.pointidfields}
+ OR 
+flags: [ -suitein [ -anglefields # ] ]   default#=={args.anglefields}
+defaults: -residuein  -pointIDfields {args.pointidfields}
+
+The -residuein format:
+label:model:chain:number:ins:type:alpha:beta:gamma:delta:epsilon:zeta
+if the file has alternate conformations, then use both -pointIDfields 
+    and -altIDfield # to specify the number of pointID fields and which field
+    contains the altID
+use -altIDval <altID> to specify which alternate conformation to calculate 
+    suite for. By default calculated for alt A
+
+-suitein takes a kinemage format,  and uses records from 
+    @ballists and/or @dotlists in this format:
+{{ptID}} [chi] deltam epsilon zeta alpha beta gamma delta [chi] 
+    @dimension in the file, if present, overrides -anglefields
+
+Note dangle trick to make theta,...,eta suites directly
+
+flag: -report [ -chart ]
+ suites in order of input, suiteness summary at end
+( -chart : NO summary at end, for MolProbity multichart)
+
+flag: -string [-nosequence] [-oneline] 
+ 3 character per suite string in order of input
+    20 per line, ptID of n*20th at end of line
+  flag: -nosequence
+    only suite names, no Base sequence character
+  flag: -oneline
+    string all one line, no point IDs
+
+flag: -kinemage
+ kinemage of clusters grouped by pucker,pucker ... 
+ group {{delta,delta}},subgroup {{gamma}},list {{cluster name}}
+  flag: -etatheta or -thetaeta
+    kinemage labels theta,eta instead of chi-1,chi
+
+flag: -satellite
+  use special general case satellite widths
+flag: -nowannabe   
+  never assign suites to wannabe clusters
+Note: any DNA residues found in the input will be ignored.
+""")
 
 main()

@@ -91,13 +91,13 @@ def report1Suite(
 
 
 def reportFinal(outNote):
-#@deleteLine:
-    outFile.write(outNote.comment + "\n")
     if not args.chart:
+#@deleteLine:
+        outFile.write(outNote.comment + "\n")
         suitenessAverage(0)
-    if bins[1].cluster[1].count > 0:  # Aform 1a    070325
-        suitenessAverage(1)
-        suitenessAverage(2)
+        if bins[1].cluster[1].count > 0:  # Aform 1a    070325
+            suitenessAverage(1)
+            suitenessAverage(2)
 
 
 def suitenessAverage(mode):
