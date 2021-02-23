@@ -49,29 +49,29 @@ outNote.outliers = 0
 
 # ***main()******************************************************************
 def main():
-    global dbCounter
+    global dbCounter  # for debugging KPB 210222
+
+    # 1. read the input
     if args.infile != "":
         inFile = open(args.infile)
-    elif sys.gettrace() is not None:
-        #    inFile = open("C:\\Users\\Ken\\Desktop\\Richardson\\suitename\\3gx5_3h-out.dngl")
-        inFile = open("C:\\Users\\Ken\\Desktop\\Richardson\\suitename\\4nLf.suitegeom")
+#    elif sys.gettrace() is not None: # how to detect debugger present
     else:
         inFile = sys.stdin
 
-    suiteness = 0
-    distance = 0
-
     if args.suitein or args.suitesin:
         suites = readKinemageFile(inFile)
-        pass
+        if len(suites) == 0:
+            sys.stderr.write("read no suites: perhaps wrong type of kinemage file\n")
+            sys.exit(1)
     else:
         residues = readResidues(inFile)
-        if residues is None:
+        if len(residues) == 0:
             sys.stderr.write("read no residues: perhaps wrong alternate code\n")
-            return
+            sys.exit(1)
         suites = buildSuites(residues)
         suites = suites[:-1]
 
+    # 2. process the suites
     for s in suites:
         if not s.validate():
             if args.test:
@@ -80,6 +80,8 @@ def main():
                 s, bins[13], bins[13].cluster[0], 0, 0, " tangled ", "", "", "", ""
             )
             continue
+
+        # At this point we have a complete suite
         bin, issue, text, pointMaster = evaluateSuite(s)
         pointColor = "white"
         if bin is None:
@@ -101,12 +103,9 @@ def main():
         s.pointMaster = pointMaster
         s.pointColor = pointColor
         dbCounter += 1
+
     finalStats()
     suitenout.writeFinalOutput(suites, outNote)
-    if len(suites) > 0:
-        pass  # exit normally
-    else:
-        sys.exit(1)
 
 
 # *** evaluateSuite and its tools ***************************************
@@ -157,8 +156,8 @@ def triage(selector, suite):
 # The more complex angles are handled by a "sieve".
 # A sieve will determine whether an angle is within one of several ranges
 # and provide an appropriate code indicating the range.
+# This is handled by the sift() function.
 sieveDelta = (
-    # This is handled by the sift() function.
     (delta3min, delta3max, 3),
     (delta2min, delta2max, 2),
 )
@@ -168,7 +167,6 @@ sieveGamma = (
     (gammapmin, gammapmax, "p"),
     (gammammin, gammammax, "m"),
 )
-
 
 def sift(sieve, angle, failCode):
     for filter in sieve:
@@ -215,7 +213,7 @@ def evaluateSuite(suite):
     if not ok:
         return None, failCode, notes, pointMaster
 
-    # use this information to select a bin
+    # We have pass the test: now use this information to select a bin
     bin = bins[(puckerdm, puckerd, gammaname)]
     # bins is an associated dictionary indexed by the triplet of three angle classifiers
     # each unique triplet of classifiers selects one unique bin, for a total of 12 bins.
@@ -254,7 +252,6 @@ def membership(bin, suite):
         matches[j] = distance
         if distance < 1:  # suite could be a member of this cluster
             matchCount += 1
-    #!! print(f"mindistance={closestD:.3f}")
 
     if matchCount == 1:
         theCluster = closestCluster
@@ -292,7 +289,6 @@ def membership(bin, suite):
         # no match, it's an outlier
         closestJ = 0
         theCluster = closestCluster
-        #    theCluster = bin.cluster[0]
         situation = f"outlier distance {closestD:.3}"
         outNote.outliers += 1
         pointMaster = "O"
@@ -313,7 +309,7 @@ def membership(bin, suite):
             suiteness = 0.01
     else:
         if closestJ != 0:
-            # 7D distance forces assignment to be an outlier
+            # 7D distance forces this suite to be an outlier
             # so we deassign it here
             closestJ = 0
             comment = f"7D dist {theCluster.name}"
@@ -331,8 +327,6 @@ def membership(bin, suite):
         print(" [suite: %s %s 4Ddist== %f, 7Ddist== %f, suiteness==%f] \n" % \
                 (theCluster.name, suite.pointID[:11], closestD, distance, suiteness))
     return theCluster, distance, suiteness, situation, comment, pointMaster, pointColor
-
-" [suite: %s %s power== %4.2f, 4Ddist== %f, 7Ddist== %f, suiteness==%f] \n"
 
 
 def domSatDistinction(suite, domCluster, satCluster, matches, matchCount):

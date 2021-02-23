@@ -48,13 +48,14 @@ def readResidues(inFile):
       continue
     fields = line.split(':')
     ids = fields[:args.pointidfields]
+    print(args.pointidfields, ids, line)
+    
     baseCode = fields[args.pointidfields-1]
     angleStrings = fields[args.pointidfields:]
     if ids[altidfield].strip() != "" and ids[altidfield] != args.altidval:
       continue  # lines for the wrong alternative conformation are ignored
 
     base = findBase(baseCode)
-#!    sys.stderr.write(f"base {baseCode} result :{base}:\n")
     if not base:    # ignore DNA bases
       continue
     angles = np.array([stringToFloat(s) for s in angleStrings])
@@ -123,6 +124,8 @@ def readKinemageSuites(lines, dimension):
         if len(angleStrings2) > len(angleStrings):
           angleStrings = angleStrings2
         angleList = [stringToFloat(s) for s in angleStrings]
+        if len(angleList) != dimension:
+          continue  # wrong number of dimensions means probably not a data point
         if dimension == 9:
             angles = np.array(angleList)
         else:  # given only 7 angles,skipping the chi angles on the ends
@@ -202,8 +205,3 @@ def buildSuites(residues):
     suites.append(buildSuiteBetweenResidues(residues[i], residues[i+1]))
   suites.append(buildSuiteLast(residues[-1]))
   return suites
-
-
-# A kinemage format, not yet supported
-def readSuites():
-  pass

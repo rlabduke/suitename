@@ -40,6 +40,7 @@ def writeFinalOutput(suites, outNote):
 
 
 def string1Suite(suite, cluster):
+    suiteCount += 1
     if args.nosequence:
         basestring = ":"
     else:
@@ -261,7 +262,6 @@ P   0.000   0.000 320.000   0.000   0.000 360.000
 def kinemageFinal(suites, outNote):
     """
     Output the content of a kinemage file
-
     The 3, 2 order may seem odd, but it is a standard
     """
     kinemageHeader(outNote)
