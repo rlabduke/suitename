@@ -27,10 +27,8 @@ def write1Suite(suite, bin, cluster, distance, suiteness, notes,
 
 
 def writeFinalOutput(suites, outNote):
-    if not args.satellites:
-        outNote.comment = " all general case widths, power = 3.00"
-    else:
-        outNote.comment = " special general case satellite widths, power = 3.00"
+    if args.satellites:
+        outNote.comment = " using special general case satellite widths"
     if args.string:
         pass
     elif args.kinemage:
@@ -40,7 +38,6 @@ def writeFinalOutput(suites, outNote):
 
 
 def string1Suite(suite, cluster):
-    suiteCount += 1
     if args.nosequence:
         basestring = ":"
     else:
@@ -93,7 +90,6 @@ def report1Suite(
 
 def reportFinal(outNote):
     if not args.chart:
-#@deleteLine:
         outFile.write(outNote.comment + "\n")
         suitenessAverage(0)
         if bins[1].cluster[1].count > 0:  # Aform 1a    070325
@@ -165,8 +161,7 @@ def suitenessAverage(mode):
         average = 0
 
     outFile.write(
-#@        "{} {} suites: average suiteness == {:5.3f}\n".format(
-        "{} {} suites: average suiteness== {:5.3f} (power==3.00)\n".format(
+        "{} {} suites: average suiteness == {:5.3f}\n".format(
             comment, allCount, average
         )
     )
@@ -281,15 +276,18 @@ def kinemageHeader(outNote):
     outFile.write("@onewidth\n")
     if args.etatheta or args.thetaeta:  # 070524
         outFile.write(
-            "@dimension {theta} {delta-1} {epsilon-1} {zeta-1} {alpha} {beta} {gamma} {delta} {eta}\n"
+            "@dimension {theta} {delta-1} {epsilon-1} {zeta-1} {alpha} "
+            "{beta} {gamma} {delta} {eta}\n"
         )
     else:
         outFile.write(
-            "@dimension {chi-1} {delta-1} {epsilon-1} {zeta-1} {alpha} {beta} {gamma} {delta} {chi}\n"
+            "@dimension {chi-1} {delta-1} {epsilon-1} {zeta-1} {alpha} "
+            "{beta} {gamma} {delta} {chi}\n"
         )
     outFile.write(
-        "@dimminmax 0.000 360.000 0.000 360.000 0.000 360.000 0.000 360.000 0.000\
- 360.000 0.000 360.000 0.000 360.000 0.000 360.000 0.000 360.000\n"
+        "@dimminmax 0.000 360.000 0.000 360.000 0.000 360.000 0.000 "
+        "360.000 0.000 360.000 0.000 360.000 0.000 360.000 0.000 360.000 "
+        "0.000 360.000\n"
         )
     if outNote.outliers:
       outFile.write("@pointmaster 'O' {outliers}\n")
@@ -297,13 +295,6 @@ def kinemageHeader(outNote):
       outFile.write("@master {wannabees}\n")
     outFile.write(janesviews)
     outFile.write(kinemageFrame)
-
-    # if(LTepsilon) {outFile.write("@pointmaster 'E' {epsilon bad}\n");}
-    # else if(LTdelta || LTdeltam)
-    #                       {outFile.write("@pointmaster 'D' {delta bad}\n");}
-    # else if(LTzeta || LTalpha || LTbeta || LTgamma)
-    #               {outFile.write("@pointmaster 'T' {various bad}\n");}
-    # if(Loutlier)  {outFile.write("@pointmaster 'O' {outliers}\n");}
 
 
 def formatAngles(angles, separator):
@@ -373,8 +364,7 @@ def binOut(bin, suites):
             "nohilite master= {{data}}\n"
         ).format(bin.name, cluster.name, cluster.clusterColor)
         outFile.write(ballList)
-        outPoints(bin, cluster, suites, "'O' white")
-#@        outPoints(bin, cluster, suites, "")
+        outPoints(bin, cluster, suites, "")
 
 
 def outPoints(bin, cluster, suites, extra1):

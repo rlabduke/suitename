@@ -3,7 +3,6 @@ from suitenamedefs import Suite, Residue, Bin, Cluster, Issue, failMessages
 from suiteninit import args, bins, MAX_CLUSTERS
 from suiteninit import normalWidths, satelliteWidths
 from suiteninput import readResidues, readKinemageFile, buildSuites
-from suitenutil import hyperEllipsoidDistance
 
 import sys, os
 import numpy as np

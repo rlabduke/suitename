@@ -132,9 +132,7 @@ class Residue:
         if len(self.angle) > 6:
             self.chi = self.angle[6]
         else:
-            self.chi = -431602080.00  #180
-            # A preposterous compromise with the past for now
-            #self.chi = -180
+            self.chi = 180
     
 
 # Suite: the 
