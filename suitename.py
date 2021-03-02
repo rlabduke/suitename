@@ -480,5 +480,3 @@ flag: -nowannabe
   never assign suites to wannabe clusters
 Note: any DNA residues found in the input will be ignored.
 """)
-
-main()
