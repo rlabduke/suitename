@@ -1,6 +1,11 @@
 # suitename
 Suitename - a tool for classifying backbone "suite" conformations (linkages between ribose sugars) in an RNA molecule.
 
+## Requirements
+Suitename requires Python 3 or later and it requires numpy to have been installed.
+
+## Running
+
 Suitename takes an input file as its first argument, or if none provided, reads the standard input. It writes its results to standard output. It classifies the conformation of each suite into one of several dozen predefined clusters that have been determined by years of study. 
 
 Two forms of input are supported:
