@@ -1,6 +1,11 @@
 # suitename
 Suitename - a tool for classifying backbone "suite" conformations (linkages between ribose sugars) in an RNA molecule.
 
+## Requirements
+Suitename requires Python 3 or later and it requires numpy to have been installed.
+
+## Running
+
 Suitename takes an input file as its first argument, or if none provided, reads the standard input. It writes its results to standard output. It classifies the conformation of each suite into one of several dozen predefined clusters that have been determined by years of study. 
 
 Two forms of input are supported:
@@ -17,3 +22,9 @@ Three forms of output are supported:
   3. A brief string showing only the cluster assignments. It consists of three characters per suite - base identity (uc) and 2-character number-letter name of the suite cluster (e.g., C1aG1gU1aA1aA1cG). Specify this by using the --string command line flag.
 
 Many other command line options are available; type suitename --help to display them.
+
+## Directories
+
+**C** Original C implementation of SuiteName along with build files to compile into a running executable.  The **Conversion** subdirectory contains tools that were used during the re-implementation in Python in 2021.
+
+**command_line** This is a directory that is searched by [CCTBX](https://github.com/cctbx/cctbx_project) when it is building SuiteName as a module.  It includes a Python script that has specially-formatted comments at its top to describe how SuiteName should be run within CCTBX/PHENIX.  It basically runs the suitename.py script in the root directory and passes any arguments along to it.
