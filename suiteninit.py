@@ -44,6 +44,7 @@ def parseCommandLine():
     parser.add_argument("--satellites", "-satellites", action="store_true")
     parser.add_argument("--nowannabe", "-nowannabe", action="store_true")
     parser.add_argument("--nosequence", "-nosequence", action="store_true")
+    parser.add_argument("--noinc", "-noinc", action="store_true")
     parser.add_argument("--thetaeta", "-thetaeta", action="store_true")
     parser.add_argument("--etatheta", "-etatheta", action="store_true")
     parser.add_argument("--test", "-test", action="store_true")

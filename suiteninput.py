@@ -153,7 +153,8 @@ def findPrefixesInList(list, prefix1, prefix2, start=0):
 
 def buildSuiteBetweenResidues(r1, r2):
   suite = Suite(r2.pointIDs, r2.base)
-  suite.chiMinus = r1.chi
+  if len(r1.angle) > 6:
+      suite.chiMinus = r1.chi
   suite.deltaMinus = r1.delta
   suite.epsilon = r1.epsilon
   suite.zeta = r1.zeta
@@ -161,9 +162,8 @@ def buildSuiteBetweenResidues(r1, r2):
   suite.beta = r2.beta
   suite.gamma = r2.gamma
   suite.delta = r2.delta
-  suite.chi = r2.chi
-
-  suite.gatherAngles()
+  if len(r2.angle) > 6:
+      suite.chi = r2.chi
   return suite
 
 
@@ -173,18 +173,19 @@ def buildSuiteFirst(r2):
   suite.beta = r2.beta
   suite.gamma = r2.gamma
   suite.delta = r2.delta
+  if len(r2.angle) > 6:
+      suite.chi = r2.chi
   suite.epsilon = 999
   suite.zeta = 999
   suite.chiMinus = 999
   suite.deltaMinus = 999
-
-  suite.gatherAngles()
   return suite
 
 
 def buildSuiteLast(r1):
   suite = Suite((),"")
-  suite.chiMinus = r1.chi
+  if len(r1.angle) > 6:
+      suite.chiMinus = r1.chi
   suite.deltaMinus = r1.delta
   suite.epsilon = r1.epsilon
   suite.zeta = r1.zeta
@@ -193,8 +194,6 @@ def buildSuiteLast(r1):
   suite.gamma = 999
   suite.delta = 999
   suite.chi = 999
-
-  suite.gatherAngles()
   return suite
 
 

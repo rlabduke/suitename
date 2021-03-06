@@ -75,7 +75,8 @@ def main():
         if not s.validate():
             if args.test:
                 sys.stderr.write(f"! failed validation: {s.pointID}\n")
-            suitenout.write1Suite(
+            if not args.noinc:
+              suitenout.write1Suite(
                 s, bins[13], bins[13].cluster[0], 0, 0, " tangled ", "", "", "", ""
             )
             continue

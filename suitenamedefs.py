@@ -96,23 +96,14 @@ class SatelliteInfo:
         self.dominantWidths = dominantWidths
 
 
-# Residue: a raw residue as normally represented
 class Residue:
     '''
-    A residue as normally read in.
+    # A residue as normally read in, consisting of its six dihedral angles
     Used only briefly as input.
     '''
     pointIDs = []
     base = " "    # A, C, G, U, ...
-    # The 6 angles:
-    alpha = 0
-    beta = 0
-    gamma = 0
-    delta = 0
-    epsilon = 0
-    zeta = 0
-    chi = 0
-    angle = np.full(7, 0.0)
+    angle = np.empty(0)  # will have 6 or 7 elements
 
     def __init__(self, ID, base, angles):
         self.pointIDs = ID
@@ -121,21 +112,74 @@ class Residue:
         self.unpackAngles()
 
     def unpackAngles(self):
-        self.alpha = self.angle[0]
-        self.beta = self.angle[1]
-        self.gamma = self.angle[2]
-        self.delta = self.angle[3]
-        self.epsilon = self.angle[4]
-        self.zeta = self.angle[5]
-        # for the future:
-        # we can accept chi as a seventh angle if provided
-        if len(self.angle) > 6:
-            self.chi = self.angle[6]
-        else:
-            self.chi = 180
+      pass
     
+    # nicknames: for ease of reading the code, each angle is given
+    # a meaningful alias. Here they are:
+    # 0   alpha
+    # 1   beta
+    # 2   gamma
+    # 3   delta
+    # 4   epsilon
+    # 5   zeta
+    # 7   chi
+    @property
+    def alpha(self):
+        return self.angle[0]
 
-# Suite: the 
+    @alpha.setter
+    def alpha(self, value):
+        self.angle[0] = value
+
+    @property
+    def beta(self):
+        return self.angle[1]
+
+    @beta.setter
+    def beta(self, value):
+        self.angle[1] = value
+
+    @property
+    def gamma(self):
+        return self.angle[2]
+
+    @gamma.setter
+    def gamma(self, value):
+        self.angle[2] = value
+
+    @property
+    def delta(self):
+        return self.angle[3]
+
+    @delta.setter
+    def delta(self, value):
+        self.angle[3] = value
+
+    @property
+    def epsilon(self):
+        return self.angle[4]
+
+    @epsilon.setter
+    def epsilon(self, value):
+        self.angle[4] = value
+
+    @property
+    def zeta(self):
+        return self.angle[5]
+
+    @zeta.setter
+    def zeta(self, value):
+        self.angle[5] = value
+
+    @property
+    def chi(self):
+        return self.angle[6]
+
+    @chi.setter
+    def chi(self, value):
+        self.angle[6] = value
+
+
 class Suite:
     '''
     The set of angles forming the linkage BETWEEN residues.
@@ -143,27 +187,8 @@ class Suite:
     '''    
     pointID = ()
     base = " "    # A, C, G, U, ...
-    #chiMinus = 0
-    deltaMinus = 0
-    epsilon = 0
-    zeta = 0
-    alpha = 0
-    beta = 0
-    gamma = 0
-    delta = 0
-    chi = 0
-    # dual representation: individual angles are named for clarity
-    # array is for convenience of computation
-    angle = np.full(9, 0.0) 
-
-    @property
-    def chiMinus(self):
-        return self.angle[0]
-
-    @chiMinus.setter
-    def chiMinus(self, value):
-        self.angle[0] = value
-
+    angle = np.empty(0) # will become an np.array of 9 angles
+    
     # fields computed during analysis:
     cluster = None  # The cluster to which it is assigned
     suiteness = 0.0
@@ -175,10 +200,10 @@ class Suite:
     def __init__(self, ID, base, angles=None):
         self.pointID = ID
         self.base = base
-        if angles is not None:
+        if angles is None:
+          self.angle = np.full(9, 0.0) 
+        else:
           self.angle = angles
-          self.unpackAngles()
-        self.cluster = None
         self.suiteness = 0.0
         self.distance = 0.0
         self.notes = ""
@@ -190,20 +215,89 @@ class Suite:
                 return False
         return True
 
-    def gatherAngles(self):
-        self.angle = array((self.chiMinus, self.deltaMinus, self.epsilon, self.zeta, 
-            self.alpha, self.beta, self.gamma, self.delta, self.chi))
+    # nicknames: for ease of reading the code, each angle is given
+    # a meaningful alias. Here they are:
+    # 0   chiMinus
+    # 1   deltaMinus
+    # 2   epsilon
+    # 3   zeta
+    # 4   alpha
+    # 5   beta
+    # 6   gamma
+    # 7   delta
+    # 8   chi
 
-    def unpackAngles(self):
-        self.chiMinus = self.angle[0]
-        self.deltaMinus = self.angle[1]
-        self.epsilon = self.angle[2]
-        self.zeta = self.angle[3]
-        self.alpha = self.angle[4]
-        self.beta = self.angle[5]
-        self.gamma = self.angle[6]
-        self.delta = self.angle[7]
-        self.chi = self.angle[8]
+    @property
+    def chiMinus(self):
+        return self.angle[0]
+
+    @chiMinus.setter
+    def chiMinus(self, value):
+        self.angle[0] = value
+
+    @property
+    def deltaMinus(self):
+        return self.angle[1]
+
+    @deltaMinus.setter
+    def deltaMinus(self, value):
+        self.angle[1] = value
+
+    @property
+    def epsilon(self):
+        return self.angle[2]
+
+    @epsilon.setter
+    def epsilon(self, value):
+        self.angle[2] = value
+
+    @property
+    def zeta(self):
+        return self.angle[3]
+
+    @zeta.setter
+    def zeta(self, value):
+        self.angle[3] = value
+
+    @property
+    def alpha(self):
+        return self.angle[4]
+
+    @alpha.setter
+    def alpha(self, value):
+        self.angle[4] = value
+
+    @property
+    def beta(self):
+        return self.angle[5]
+
+    @beta.setter
+    def beta(self, value):
+        self.angle[5] = value
+
+    @property
+    def gamma(self):
+        return self.angle[6]
+
+    @gamma.setter
+    def gamma(self, value):
+        self.angle[6] = value
+
+    @property
+    def delta(self):
+        return self.angle[7]
+
+    @delta.setter
+    def delta(self, value):
+        self.angle[7] = value
+
+    @property
+    def chi(self):
+        return self.angle[8]
+
+    @chi.setter
+    def chi(self, value):
+        self.angle[8] = value
 
 
 
