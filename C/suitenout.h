@@ -36,7 +36,7 @@ SUITENOUT int    binnedsuitecountall, reportcountall;
 SUITENOUT int    triagecountall;  /*070328*/
 SUITENOUT int    Lwannabeout;  /*wannabe in output flag 070429*/
 
-SUITENOUT char temps[256];
+SUITENOUT char temps[1024];
 
 static int nout=1; /*Lsringout residue/suite counter*/
 
