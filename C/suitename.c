@@ -142,6 +142,8 @@ fprintf(stderr,"\n");
                      jclst = 0; /*cluster not assigned in dummy bin*/
                      sprintf(sour," tangled "); /*suite incomplete angles*/
                      Ltriage = 0; /* Do not report a triage value for incomplete suites */
+                     Liswannabe = 0;  /* Do not report wannabe for incomplete suites */
+                     Lcomment = 0;  /* No comment for incomplete suites */
                      writesuite(ibin,jclst,sour,distance,suiteness,ptmaster,ptcolor);
                        /*binname "inc "  clustername "__" 070414 */
                   }
