@@ -75,6 +75,7 @@ int  loadsuite(void)
     suiteptr->ptID[n] = '\0'; /*terminate ptID string*/
     suiteptr->basechr[0] = newresidueptr->basechr[0]; /*070412*/
     suiteptr->basechr[1] = '\0';
+    suiteptr->ang[0] = suiteptr->chim = 0.0;
     suiteptr->ang[1] = suiteptr->deltam  = oldresidueptr->delta;
     suiteptr->ang[2] = suiteptr->epsilon = oldresidueptr->epsilon;
     suiteptr->ang[3] = suiteptr->zeta    = oldresidueptr->zeta;
@@ -82,6 +83,7 @@ int  loadsuite(void)
     suiteptr->ang[5] = suiteptr->beta    = newresidueptr->beta;
     suiteptr->ang[6] = suiteptr->gamma   = newresidueptr->gamma;
     suiteptr->ang[7] = suiteptr->delta   = newresidueptr->delta;
+    suiteptr->ang[8] = suiteptr->chi = 0.0;
 
     return(1);
 }
