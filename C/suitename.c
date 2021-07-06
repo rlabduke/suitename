@@ -756,8 +756,6 @@ fprintf(stderr,"\n");
            ,bin[i].clst[closestj].clustername,matches[i][closestj]
            ,bin[i].clst[nextclosej].clustername,matches[i][nextclosej]);
 
-   clusterout[i][thej] = 1; /*this specific cluster has an entry*/
-
    if(Lwannabe && strcmp(bin[i].clst[thej].status,"wannabe")==0)
    {
       Lwannabeout = 1; /*once set, stays set*/
@@ -811,6 +809,9 @@ fprintf(stderr,"\n");
       thej = 0; /*make not assigned in any case! */
       suiteness = 0;
    }
+   // BUGFIX KPB 210706: this must come AFTER 7D distance might modify thej:
+   clusterout[i][thej] = 1; /*this specific cluster has an entry*/
+					
    /*Decisions are made piecemeal (ddg) or in 4D (abez)                       */
    /*  inclusion is definite to a particular cluster, based on 4D distances   */
    /*  exclusion is general, except for knowledge of closest in 4D            */

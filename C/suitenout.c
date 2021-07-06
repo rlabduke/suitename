@@ -13,7 +13,7 @@ void writesuite(int ibin,int jclst,char* sour, float distance, float suiteness,c
 {
    int  j=0,n=0;
    /*static int nout=1; Lstringout residue/suite counter, suitenout.h 070421*/
-   char resstr[32];
+//   char resstr[32];
    char basestr[2]={'\0','\0'};
    char clststr[4]={'\0','\0','\0','\0'};
    static char lappedstr[256]={'\0'};
@@ -29,8 +29,9 @@ void writesuite(int ibin,int jclst,char* sour, float distance, float suiteness,c
 
      if(Lsourout) {sourptr = sour;} /*070524*/
      else         {sourptr = sourpuss;}
-     sprintf(temps,"{%s %s %s:D==%5.3f:S==%5.3f: %s} %s%s ,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f",
-     bin[ibin].binname,
+	 sprintf(temps, "{%s %s %s:D==%5.3f:S==%5.3f: %s} %s%s ,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f",
+//	 sprintf(temps, "{%s %s %s:D==%5.3f:S==%5.3f: %s} %s%s ,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f",
+	 bin[ibin].binname,
      bin[ibin].clst[jclst].clustername,
      sourptr,
      distance,
@@ -354,6 +355,7 @@ void binstuffout(int nbin, int mbin)
  ,bin[i].binname,bin[i].clst[j].clustername,bin[i].clst[j].clustercolor,extras);
                fprintf(fpout,
  "{%s %s} 180 %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f 180\n"
+// "{%s %s} 180 %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f 180\n"
  ,bin[i].binname,bin[i].clst[j].clustername
  ,bin[i].clst[j].ang[1]
  ,bin[i].clst[j].ang[2]
@@ -368,6 +370,7 @@ void binstuffout(int nbin, int mbin)
  ,bin[i].binname,bin[i].clst[j].clustername,bin[i].clst[j].clustercolor,extras);
                fprintf(fpout,
  "{%s %s} 180 %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f 180\n"
+// "{%s %s} 180 %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f 180\n"
  ,bin[i].binname,bin[i].clst[j].clustername
  ,bin[i].clst[j].ang[1]
  ,bin[i].clst[j].ang[2]
