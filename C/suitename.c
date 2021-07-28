@@ -807,7 +807,9 @@ fprintf(stderr,"\n");
             sprintf(commentstr," 7D dist %s",bin[ibin].clst[thej].clustername);
             Lcomment=1; /*070628*/
          }
-      }
+		 sprintf(ptmaster, "'O'"); /*outlier within a bin*/
+		 sprintf(ptcolor, " white"); /*leading space*/
+	  }
       thej = 0; /*make not assigned in any case! */
       suiteness = 0;
    }
