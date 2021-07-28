@@ -7,6 +7,10 @@
 #undef  SUITENOUT
 #include "suitenscrt.h"
 #include "suiteninit.h"
+#include "suiteninpt.h"
+
+//static int dbcount = 0; // KPB debug
+int dbseq = 0;
 
 /****writesuite()*************************************************************/
 void writesuite(int ibin,int jclst,char* sour, float distance, float suiteness,char* ptmaster,char* ptcolor)
@@ -24,6 +28,7 @@ void writesuite(int ibin,int jclst,char* sour, float distance, float suiteness,c
    
    sourpuss[0] = '\0'; /*070524*/
 
+   dbseq = atoi(ptID[4]);  // KPB 210727 debug
    if(Lkinemageout)
    {/*kinemage showing clusters*/
 
@@ -104,7 +109,8 @@ void writesuite(int ibin,int jclst,char* sour, float distance, float suiteness,c
       /*report on all entries, even if suite is incomplete*/
       reason[0] = '\0'; /*default to none*/
       stray[0] = '\0'; /*default to none*/
-      if(Ltriage==EPSILONM)   {sprintf(reason," epsilon-1");} /*070628*/
+	  if (Ldbflag) { sprintf(reason, " FLAG"); } /*210726 KPB*/
+      else if(Ltriage==EPSILONM)   {sprintf(reason," epsilon-1");} /*070628*/
       else if(Ltriage==DELTAM){sprintf(reason," delta-1");} /*070628*/
       else if(Ltriage==DELTA) {sprintf(reason," delta");} /*070628*/
       else if(Ltriage==GAMMA) {sprintf(reason," gamma");} /*070521*/
@@ -181,7 +187,7 @@ void suitenessaverage(int mode) /*mode for all, just Aform, etc. */
 
    if(mode == 0) /*all complete suites, all ways*/
    {  /*bin==13 has the incomplete pseudo-suites with incomplete angles*/
-      ibin = 1; nbin = 12; jclst = 0; nclst = 11;
+      ibin = 1; nbin = 12; jclst = 0; nclst = 12;
       xbin = -1; xclst = -1;  /*exception when >= 0*/
       /*ibin 0 contains triaged clusters, never use these*/
    
@@ -203,7 +209,7 @@ void suitenessaverage(int mode) /*mode for all, just Aform, etc. */
    }
    else if(mode == 2) /* everything except A form, i.e. except 1,1*/
    {  /*bin==13 has the incomplete pseudo-suites with incomplete angles*/
-      ibin = 1; nbin = 12; jclst = 1; nclst = 11; /*only complete suite pts*/
+      ibin = 1; nbin = 12; jclst = 1; nclst = 12; /*only complete suite pts*/
                          /*no outliers (j==0)*/
       xbin = 1; xclst = 1;  /*exception when >= 0*/
    

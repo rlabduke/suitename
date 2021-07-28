@@ -35,6 +35,7 @@ SUITENOUT int    suitenesscnt[MAXBINS][MAXCLST][12];
 SUITENOUT int    binnedsuitecountall, reportcountall;
 SUITENOUT int    triagecountall;  /*070328*/
 SUITENOUT int    Lwannabeout;  /*wannabe in output flag 070429*/
+SUITENOUT int    Ldbflag;  /*KPB debug flag 210726*/
 
 SUITENOUT char temps[1024];
 

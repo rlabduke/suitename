@@ -128,6 +128,7 @@ fprintf(stderr,"%8.3f ",newresidueptr->zeta);
 fprintf(stderr,"\n");
 }
 */
+			Ldbflag = 0;
             if(Lsuitesin) {LOK = getsuite();}
             else {LOK = getresidue(); Lresiduesin = 1;}
             if(LOK)
@@ -506,6 +507,11 @@ void membership(int ibin)
    matchcnt = 0;
    i = ibin;
 
+   // KPB temp debug tools 140721
+   char buff[3];
+   strncpy(buff, &suiteptr->ptID[9], 2);
+   int resseq = atoi(buff);
+
    /*sudo */
    /*sudo program body: cluster membership in assigned s_bini */
 
@@ -777,6 +783,7 @@ fprintf(stderr,"\n");
 
       suiteness = (cos(pi*distance) +1)/2;
       if(suiteness < 0.01) {suiteness = 0.01;} /*floor  070430*/
+	  if (suiteness >= 0.1 && suiteness <= 0.2) Ldbflag = 1;  
 
       if(!Lassigned)
       {
