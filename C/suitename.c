@@ -783,9 +783,8 @@ fprintf(stderr,"\n");
 
       suiteness = (cos(pi*distance) +1)/2;
       if(suiteness < 0.01) {suiteness = 0.01;} /*floor  070430*/
-	  if (suiteness >= 0.1 && suiteness <= 0.2) Ldbflag = 1;  
 
-      if(!Lassigned)
+	  if(!Lassigned)
       {
          thej = closestj; /*assign in this case*/
          if(Lreportout)
