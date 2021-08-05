@@ -219,7 +219,7 @@ int  interpretdanglerecord(void)
                         else if(strstr(NAListC, ptID[n])) {basechr[0] = 'C';}
                         else if(strstr(NAListU, ptID[n])) {basechr[0] = 'U';}
                         else if(strstr(NAListT, ptID[n])) {basechr[0] = 'T';}
-                        else {basechr[0] = 'Y';}
+                        else {basechr[0] = '?';}  // KPB changed from 'Y' to fit the future 210805
                      }
                      else {basechr[0] = 'Z';}
                      basechr[1] = '\0';
@@ -297,7 +297,7 @@ int  interpretresiduerecord(void)
                         else if(strstr(NAListC, ptID[n])) {basechr[0] = 'C';}
                         else if(strstr(NAListU, ptID[n])) {basechr[0] = 'U';}
                         else if(strstr(NAListT, ptID[n])) {basechr[0] = 'T';}
-                        else {basechr[0] = 'Y';}
+                        else {basechr[0] = '?';}    // KPB changed from 'Y' to fit the future 210805
                      }
                      else {basechr[0] = 'Z';}
                      basechr[1] = '\0';
