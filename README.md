@@ -1,6 +1,14 @@
 # suitename
 Suitename - a tool for classifying backbone "suite" conformations (linkages between ribose sugars) in an RNA molecule.
 
+## Obsolete
+
+This repository contains obsolete code that is no longer maintained as of August 2021.
+SuiteName development has been moved into the CCTBX code base and it can
+be run from a CCTBX installation as phenix.suitename or molprobity.suitename.
+Its location within that code base is
+[here](https://github.com/cctbx/cctbx_project/mmtbx/suitename).
+
 ## Requirements
 Suitename requires Python 3 or later and it requires numpy to have been installed.
 
