@@ -34,8 +34,8 @@ void writesuite(int ibin,int jclst,char* sour, float distance, float suiteness,c
 
      if(Lsourout) {sourptr = sour;} /*070524*/
      else         {sourptr = sourpuss;}
-//	 sprintf(temps, "{%s %s %s:D==%5.3f:S==%5.3f: %s} %s%s ,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f",
-	 sprintf(temps, "{%s %s %s:D==%5.3f:S==%5.3f: %s} %s%s ,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f",
+	 sprintf(temps, "{%s %s %s:D==%5.3f:S==%5.3f: %s} %s%s ,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f",
+//	 sprintf(temps, "{%s %s %s:D==%5.3f:S==%5.3f: %s} %s%s ,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f",
 	 bin[ibin].binname,
      bin[ibin].clst[jclst].clustername,
      sourptr,
@@ -360,8 +360,8 @@ void binstuffout(int nbin, int mbin)
  "@ringlist {%s %s} color= %s radius= 10 width= 1 nobutton master= {avsigma}%s\n"
  ,bin[i].binname,bin[i].clst[j].clustername,bin[i].clst[j].clustercolor,extras);
                fprintf(fpout,
-// "{%s %s} 180 %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f 180\n"
- "{%s %s} 180 %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f 180\n"
+ "{%s %s} 180 %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f 180\n"
+// "{%s %s} 180 %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f 180\n"
  ,bin[i].binname,bin[i].clst[j].clustername
  ,bin[i].clst[j].ang[1]
  ,bin[i].clst[j].ang[2]
@@ -375,8 +375,8 @@ void binstuffout(int nbin, int mbin)
  "@labellist {%s %s} color= %s nobutton master= {labels}%s\n"
  ,bin[i].binname,bin[i].clst[j].clustername,bin[i].clst[j].clustercolor,extras);
                fprintf(fpout,
-// "{%s %s} 180 %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f 180\n"
- "{%s %s} 180 %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f 180\n"
+ "{%s %s} 180 %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f 180\n"
+// "{%s %s} 180 %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f 180\n"
  ,bin[i].binname,bin[i].clst[j].clustername
  ,bin[i].clst[j].ang[1]
  ,bin[i].clst[j].ang[2]
