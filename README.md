@@ -40,3 +40,7 @@ Many other command line options are available; type `python3 suitename.py --help
 **C** Original C implementation of SuiteName along with build files to compile into a running executable.  The **Conversion** subdirectory contains tools that were used during the re-implementation in Python in 2021.
 
 **command_line** This is a directory that is searched by [CCTBX](https://github.com/cctbx/cctbx_project) when it is building SuiteName as a module.  It includes a Python script that has specially-formatted comments at its top to describe how SuiteName should be run within CCTBX/PHENIX.  It basically runs the suitename.py script in the root directory and passes any arguments along to it.
+
+## License
+
+BSD-3-Clause; see [LICENSE](LICENSE).
